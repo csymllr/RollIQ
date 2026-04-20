@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-ssr/
+
+.env.local
+.env.*.local
+
+.vercel/
+supabase/.temp/
+
+.vscode/
+.idea/
+
+coverage/
+*.local
+
+*.tsbuildinfo
