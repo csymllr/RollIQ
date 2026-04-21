@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useArsenalStore } from '@/stores/arsenal'
 import { useBowlerStore } from '@/stores/bowler'
 import TapButton from '@/components/TapButton.vue'
+import { ballCatalog } from '@/data/ballCatalog'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,6 +15,62 @@ const editId = computed(() => route.params.id as string | undefined)
 const isEdit = computed(() => !!editId.value)
 const saving = ref(false)
 const error = ref('')
+
+const brandModels = computed(() => ballCatalog[form.value.brand] ?? [])
+
+function onModelChange() {
+  const entry = brandModels.value.find((b) => b.model === form.value.model)
+  if (!entry) return
+  if (!form.value.cover_type)     form.value.cover_type     = entry.cover_type     ?? ''
+  if (!form.value.role_tag)       form.value.role_tag       = entry.role_tag       ?? ''
+  if (!form.value.finish_surface) form.value.finish_surface = entry.finish_surface ?? ''
+}
+
+type LayoutSystem = 'storm' | 'dual-angle' | 'custom'
+type HandStyle   = '1H' | '2H'
+interface LayoutPreset { label: string; value: string; desc: string }
+
+const layoutSystem = ref<LayoutSystem>('storm')
+const layoutHand   = ref<HandStyle>('1H')
+
+const stormPresets: LayoutPreset[] = [
+  { label: '3×4.5×2',  value: '3×4.5×2',  desc: 'Very strong / high flare'            },
+  { label: '4×4×1',    value: '4×4×1',    desc: 'Strong midlane / controlled backend'  },
+  { label: '4.5×3×2',  value: '4.5×3×2',  desc: 'Strong benchmark / early midlane'    },
+  { label: '5×4×2',    value: '5×4×2',    desc: 'Universal benchmark'                  },
+  { label: '5×5×4',    value: '5×5×4',    desc: 'Clean front / smooth downlane'        },
+  { label: '6×5×3',    value: '6×5×3',    desc: 'Weak / max length'                    },
+  { label: '2×6×1',    value: '2×6×1',    desc: 'Low RG control / difficult lanes'     },
+]
+
+const dualAnglePresets: Record<HandStyle, LayoutPreset[]> = {
+  '1H': [
+    { label: '45°×5×45°', value: '45°×5×45°', desc: 'Control'       },
+    { label: '45°×4×45°', value: '45°×4×45°', desc: 'Length / clean' },
+    { label: '50°×5×50°', value: '50°×5×50°', desc: 'Benchmark'      },
+    { label: '55°×5×55°', value: '55°×5×55°', desc: 'Mid hook'       },
+    { label: '60°×5×60°', value: '60°×5×60°', desc: 'Strong hook'    },
+    { label: '65°×5×60°', value: '65°×5×60°', desc: 'Strong / angular'},
+    { label: '70°×5×65°', value: '70°×5×65°', desc: 'Max hook'       },
+  ],
+  '2H': [
+    { label: '50°×4.5×45°', value: '50°×4.5×45°', desc: 'Control'    },
+    { label: '60°×4.5×45°', value: '60°×4.5×45°', desc: 'Benchmark'  },
+    { label: '70°×4.5×45°', value: '70°×4.5×45°', desc: 'Mid hook'   },
+    { label: '80°×4.5×45°', value: '80°×4.5×45°', desc: 'Strong hook'},
+    { label: '90°×4.5×45°', value: '90°×4.5×45°', desc: 'Max hook'   },
+  ],
+}
+
+const activePresets = computed<LayoutPreset[]>(() => {
+  if (layoutSystem.value === 'storm')       return stormPresets
+  if (layoutSystem.value === 'dual-angle')  return dualAnglePresets[layoutHand.value]
+  return []
+})
+
+function selectLayout(value: string) {
+  form.value.layout_text = value
+}
 
 const form = ref({
   brand: '',
@@ -93,13 +150,32 @@ async function save() {
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Brand *</label>
-          <input v-model="form.brand" type="text" required placeholder="Storm, Roto Grip…"
+          <input v-model="form.brand" type="text" list="brand-list" required placeholder="Storm, Roto Grip…"
             class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
+          <datalist id="brand-list">
+            <option value="900 Global" />
+            <option value="Brunswick" />
+            <option value="Columbia 300" />
+            <option value="DV8" />
+            <option value="Ebonite" />
+            <option value="Hammer" />
+            <option value="Lane #1" />
+            <option value="Motiv" />
+            <option value="Pyramid" />
+            <option value="Radical" />
+            <option value="Roto Grip" />
+            <option value="Storm" />
+            <option value="Track" />
+          </datalist>
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Model *</label>
-          <input v-model="form.model" type="text" required placeholder="Phaze II…"
+          <input v-model="form.model" type="text" list="model-list" required placeholder="Phaze II…"
+            @change="onModelChange"
             class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
+          <datalist id="model-list">
+            <option v-for="ball in brandModels" :key="ball.model" :value="ball.model" />
+          </datalist>
         </div>
       </div>
 
@@ -126,8 +202,15 @@ async function save() {
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Cover Type</label>
-          <input v-model="form.cover_type" type="text" placeholder="Hybrid Reactive…"
-            class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
+          <select v-model="form.cover_type" class="w-full rounded-lg bg-slate-800 border-slate-700 text-white">
+            <option value="">Select cover</option>
+            <option value="Solid Reactive">Solid Reactive</option>
+            <option value="Pearl Reactive">Pearl Reactive</option>
+            <option value="Hybrid Reactive">Hybrid Reactive</option>
+            <option value="Urethane">Urethane</option>
+            <option value="Polyester">Polyester</option>
+            <option value="Particle">Particle</option>
+          </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Surface / Finish</label>
@@ -137,9 +220,46 @@ async function save() {
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Layout</label>
-        <input v-model="form.layout_text" type="text" placeholder="45×5×45"
-          class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium text-slate-300">Layout</label>
+          <!-- System toggle -->
+          <div class="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
+            <button type="button" @click="layoutSystem = 'storm'"
+              :class="layoutSystem === 'storm' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
+              class="px-3 py-1 transition-colors">Storm</button>
+            <button type="button" @click="layoutSystem = 'dual-angle'"
+              :class="layoutSystem === 'dual-angle' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
+              class="px-3 py-1 transition-colors">Dual Angle</button>
+            <button type="button" @click="layoutSystem = 'custom'"
+              :class="layoutSystem === 'custom' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
+              class="px-3 py-1 transition-colors">Custom</button>
+          </div>
+        </div>
+
+        <!-- 1H / 2H toggle — only for Dual Angle -->
+        <div v-if="layoutSystem === 'dual-angle'" class="flex gap-2 mb-2">
+          <button type="button" @click="layoutHand = '1H'"
+            :class="layoutHand === '1H' ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'"
+            class="px-3 py-1 rounded-md border text-xs transition-colors">1H</button>
+          <button type="button" @click="layoutHand = '2H'"
+            :class="layoutHand === '2H' ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'"
+            class="px-3 py-1 rounded-md border text-xs transition-colors">2H</button>
+        </div>
+
+        <!-- Preset chips -->
+        <div v-if="layoutSystem !== 'custom'" class="flex flex-wrap gap-2 mb-2">
+          <button v-for="preset in activePresets" :key="preset.value" type="button"
+            @click="selectLayout(preset.value)"
+            :class="form.layout_text === preset.value ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500'"
+            class="px-2.5 py-1 rounded-md border text-xs transition-colors text-left">
+            <div class="font-mono font-semibold">{{ preset.label }}</div>
+            <div class="text-[10px] leading-tight" :class="form.layout_text === preset.value ? 'text-blue-200' : 'text-slate-400'">{{ preset.desc }}</div>
+          </button>
+        </div>
+
+        <input v-model="form.layout_text" type="text"
+          :placeholder="layoutSystem === 'custom' ? 'Enter layout…' : 'or type a custom layout…'"
+          class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500 text-sm" />
       </div>
 
       <div>
