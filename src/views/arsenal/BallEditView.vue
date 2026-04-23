@@ -5,11 +5,13 @@ import { useArsenalStore } from '@/stores/arsenal'
 import { useBowlerStore } from '@/stores/bowler'
 import TapButton from '@/components/TapButton.vue'
 import { ballCatalog } from '@/data/ballCatalog'
+import { useFetchBallSpecs } from '@/composables/useFetchBallSpecs'
 
 const route = useRoute()
 const router = useRouter()
 const arsenal = useArsenalStore()
 const bowler = useBowlerStore()
+const { fetching: fetchingSpecs, fetchError: specsError, fetchSpecs } = useFetchBallSpecs()
 
 const editId = computed(() => route.params.id as string | undefined)
 const isEdit = computed(() => !!editId.value)
@@ -18,12 +20,29 @@ const error = ref('')
 
 const brandModels = computed(() => ballCatalog[form.value.brand] ?? [])
 
+const isNotInCatalog = computed(() => {
+  const b = form.value.brand.trim()
+  const m = form.value.model.trim()
+  if (!b || !m) return false
+  const entries = ballCatalog[b] ?? []
+  return !entries.some((e) => e.model.toLowerCase() === m.toLowerCase())
+})
+
 function onModelChange() {
   const entry = brandModels.value.find((b) => b.model === form.value.model)
   if (!entry) return
   if (!form.value.cover_type)     form.value.cover_type     = entry.cover_type     ?? ''
   if (!form.value.role_tag)       form.value.role_tag       = entry.role_tag       ?? ''
   if (!form.value.finish_surface) form.value.finish_surface = entry.finish_surface ?? ''
+}
+
+async function fetchAndPopulate() {
+  const specs = await fetchSpecs(form.value.brand.trim(), form.value.model.trim())
+  if (!specs) return
+  if (specs.cover_type)     form.value.cover_type     = specs.cover_type
+  if (specs.core_type)      form.value.core_type      = specs.core_type
+  if (specs.finish_surface) form.value.finish_surface = specs.finish_surface
+  if (specs.role_tag)       form.value.role_tag       = specs.role_tag
 }
 
 type LayoutSystem = 'storm' | 'dual-angle' | 'custom'
@@ -177,6 +196,23 @@ async function save() {
             <option v-for="ball in brandModels" :key="ball.model" :value="ball.model" />
           </datalist>
         </div>
+      </div>
+
+      <!-- AI spec lookup — shown when brand+model are set but not in our seeded catalog -->
+      <div v-if="isNotInCatalog" class="flex items-center gap-3 -mt-1">
+        <button type="button" @click="fetchAndPopulate" :disabled="fetchingSpecs"
+          class="flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 disabled:opacity-50 transition-colors">
+          <svg v-if="!fetchingSpecs" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+          <svg v-else class="w-4 h-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          {{ fetchingSpecs ? 'Finding specs…' : 'Find specs with AI' }}
+        </button>
+        <span v-if="specsError" class="text-xs text-red-400">{{ specsError }}</span>
       </div>
 
       <div class="grid grid-cols-2 gap-3">

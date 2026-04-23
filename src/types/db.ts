@@ -39,6 +39,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      balls_catalog: {
+        Row: {
+          id:              string
+          brand:           string
+          model:           string
+          cover_type:      string | null
+          core_name:       string | null
+          cover_name:      string | null
+          factory_finish:  string | null
+          role_tag:        string | null
+          core_symmetry:   string | null
+          release_year:    number | null
+          is_discontinued: boolean
+          ai_verified:     boolean
+          created_at:      string
+          updated_at:      string
+        }
+        Insert: {
+          id?:              string
+          brand:            string
+          model:            string
+          cover_type?:      string | null
+          core_name?:       string | null
+          cover_name?:      string | null
+          factory_finish?:  string | null
+          role_tag?:        string | null
+          core_symmetry?:   string | null
+          release_year?:    number | null
+          is_discontinued?: boolean
+          ai_verified?:     boolean
+          created_at?:      string
+          updated_at?:      string
+        }
+        Update: {
+          id?:              string
+          brand?:           string
+          model?:           string
+          cover_type?:      string | null
+          core_name?:       string | null
+          cover_name?:      string | null
+          factory_finish?:  string | null
+          role_tag?:        string | null
+          core_symmetry?:   string | null
+          release_year?:    number | null
+          is_discontinued?: boolean
+          ai_verified?:     boolean
+          created_at?:      string
+          updated_at?:      string
+        }
+        Relationships: []
+      }
       balls: {
         Row: {
           bowler_id: string
@@ -100,6 +151,8 @@ export type Database = {
       }
       bowlers: {
         Row: {
+          analytics_consent: boolean
+          analytics_consent_at: string | null
           average_band: string | null
           axis_rotation: number | null
           axis_tilt: number | null
@@ -117,6 +170,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          analytics_consent?: boolean
+          analytics_consent_at?: string | null
           average_band?: string | null
           axis_rotation?: number | null
           axis_tilt?: number | null
@@ -134,6 +189,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          analytics_consent?: boolean
+          analytics_consent_at?: string | null
           average_band?: string | null
           axis_rotation?: number | null
           axis_tilt?: number | null
@@ -158,6 +215,7 @@ export type Database = {
           converted: boolean | null
           created_at: string
           cumulative_score: number | null
+          frame_detail: Json | null
           frame_note: string | null
           frame_number: number
           frame_score: number | null
@@ -175,6 +233,7 @@ export type Database = {
           converted?: boolean | null
           created_at?: string
           cumulative_score?: number | null
+          frame_detail?: Json | null
           frame_note?: string | null
           frame_number: number
           frame_score?: number | null
@@ -192,6 +251,7 @@ export type Database = {
           converted?: boolean | null
           created_at?: string
           cumulative_score?: number | null
+          frame_detail?: Json | null
           frame_note?: string | null
           frame_number?: number
           frame_score?: number | null
