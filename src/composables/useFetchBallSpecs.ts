@@ -24,12 +24,17 @@ export function useFetchBallSpecs() {
       })
 
       if (error) {
-        fetchError.value = 'Spec lookup failed — try again or fill in manually'
+        const msg = (error as any)?.message ?? ''
+        if (msg.includes('503') || msg.includes('not configured')) {
+          fetchError.value = 'AI lookup unavailable — fill in specs manually'
+        } else {
+          fetchError.value = 'Lookup failed — check connection and try again'
+        }
         return null
       }
 
       if (!data?.found) {
-        fetchError.value = 'Ball not recognized — fill in specs manually'
+        fetchError.value = 'Ball not found in database — fill in specs manually'
         return null
       }
 

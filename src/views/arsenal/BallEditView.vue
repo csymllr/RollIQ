@@ -3,7 +3,6 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useArsenalStore } from '@/stores/arsenal'
 import { useBowlerStore } from '@/stores/bowler'
-import TapButton from '@/components/TapButton.vue'
 import { ballCatalog } from '@/data/ballCatalog'
 import { useFetchBallSpecs } from '@/composables/useFetchBallSpecs'
 
@@ -152,163 +151,229 @@ async function save() {
   if (err) { error.value = err.message; return }
   router.push('/arsenal')
 }
+
+const now = new Date()
 </script>
 
 <template>
-  <div class="p-4 pb-6 max-w-lg mx-auto">
-    <div class="flex items-center gap-3 mb-6">
-      <button @click="router.back()" class="tap-target text-slate-400 hover:text-white">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <h1 class="text-xl font-bold text-white">{{ isEdit ? 'Edit Ball' : 'Add Ball' }}</h1>
+  <div class="screen-root no-scrollbar" style="background: var(--bg-0); min-height: 100%; display: flex; flex-direction: column;">
+
+    <!-- Status bar -->
+    <div class="rr-mono" style="display: flex; justify-content: space-between; padding: 10px 20px 4px; font-size: 12px; color: var(--text-1); font-weight: 600; flex-shrink: 0;">
+      <span>{{ now.getHours() }}:{{ String(now.getMinutes()).padStart(2,'0') }}</span>
+      <span style="color: var(--text-2);">● ● ● ▮▮▮▮</span>
     </div>
 
-    <form @submit.prevent="save" class="space-y-4">
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Brand *</label>
-          <input v-model="form.brand" type="text" list="brand-list" required placeholder="Storm, Roto Grip…"
-            class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
-          <datalist id="brand-list">
-            <option value="900 Global" />
-            <option value="Brunswick" />
-            <option value="Columbia 300" />
-            <option value="DV8" />
-            <option value="Ebonite" />
-            <option value="Hammer" />
-            <option value="Lane #1" />
-            <option value="Motiv" />
-            <option value="Pyramid" />
-            <option value="Radical" />
-            <option value="Roto Grip" />
-            <option value="Storm" />
-            <option value="Track" />
-          </datalist>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Model *</label>
-          <input v-model="form.model" type="text" list="model-list" required placeholder="Phaze II…"
-            @change="onModelChange"
-            class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
-          <datalist id="model-list">
-            <option v-for="ball in brandModels" :key="ball.model" :value="ball.model" />
-          </datalist>
-        </div>
-      </div>
+    <!-- Header -->
+    <div class="between" style="padding: 10px 16px 12px; border-bottom: 1px solid var(--line); flex-shrink: 0;">
+      <button @click="router.back()"
+        style="color: var(--text-2); font-size: 22px; background: none; border: none; cursor: pointer; line-height: 1; padding: 0 4px;">×</button>
+      <div class="rr-script rr-text-cyan" style="font-size: 22px;">{{ isEdit ? 'Edit Ball' : 'Add Ball' }}</div>
+      <div style="width: 32px;"/>
+    </div>
 
-      <!-- AI spec lookup — shown when brand+model are set but not in our seeded catalog -->
-      <div v-if="isNotInCatalog" class="flex items-center gap-3 -mt-1">
-        <button type="button" @click="fetchAndPopulate" :disabled="fetchingSpecs"
-          class="flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 disabled:opacity-50 transition-colors">
-          <svg v-if="!fetchingSpecs" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-          </svg>
-          <svg v-else class="w-4 h-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          {{ fetchingSpecs ? 'Finding specs…' : 'Find specs with AI' }}
-        </button>
-        <span v-if="specsError" class="text-xs text-red-400">{{ specsError }}</span>
-      </div>
+    <!-- Scrollable form content -->
+    <div style="flex: 1; overflow-y: auto; padding: 16px 16px 100px;" class="no-scrollbar">
+      <form @submit.prevent="save">
 
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Weight (lb) *</label>
-          <input v-model.number="form.weight_lb" type="number" min="6" max="16" required
-            class="w-full rounded-lg bg-slate-800 border-slate-700 text-white" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Role *</label>
-          <select v-model="form.role_tag" class="w-full rounded-lg bg-slate-800 border-slate-700 text-white">
-            <option value="">Select role</option>
-            <option value="benchmark">Benchmark</option>
-            <option value="strong_asym">Strong Asym</option>
-            <option value="transition">Transition</option>
-            <option value="urethane">Urethane</option>
-            <option value="spare">Spare</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Cover Type</label>
-          <select v-model="form.cover_type" class="w-full rounded-lg bg-slate-800 border-slate-700 text-white">
-            <option value="">Select cover</option>
-            <option value="Solid Reactive">Solid Reactive</option>
-            <option value="Pearl Reactive">Pearl Reactive</option>
-            <option value="Hybrid Reactive">Hybrid Reactive</option>
-            <option value="Urethane">Urethane</option>
-            <option value="Polyester">Polyester</option>
-            <option value="Particle">Particle</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Surface / Finish</label>
-          <input v-model="form.finish_surface" type="text" placeholder="500 / 2000 / polish"
-            class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500" />
-        </div>
-      </div>
-
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium text-slate-300">Layout</label>
-          <!-- System toggle -->
-          <div class="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
-            <button type="button" @click="layoutSystem = 'storm'"
-              :class="layoutSystem === 'storm' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
-              class="px-3 py-1 transition-colors">Storm</button>
-            <button type="button" @click="layoutSystem = 'dual-angle'"
-              :class="layoutSystem === 'dual-angle' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
-              class="px-3 py-1 transition-colors">Dual Angle</button>
-            <button type="button" @click="layoutSystem = 'custom'"
-              :class="layoutSystem === 'custom' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
-              class="px-3 py-1 transition-colors">Custom</button>
+        <!-- Brand & Model -->
+        <div class="rr-marquee rr-text-pink" style="font-size: 10px; margin-bottom: 8px;">BRAND & MODEL</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Brand *</div>
+            <input v-model="form.brand" type="text" list="brand-list" required placeholder="Storm, Roto Grip…"
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+            <datalist id="brand-list">
+              <option value="900 Global" />
+              <option value="Brunswick" />
+              <option value="Columbia 300" />
+              <option value="DV8" />
+              <option value="Ebonite" />
+              <option value="Hammer" />
+              <option value="Lane #1" />
+              <option value="Motiv" />
+              <option value="Pyramid" />
+              <option value="Radical" />
+              <option value="Roto Grip" />
+              <option value="Storm" />
+              <option value="Track" />
+            </datalist>
+          </div>
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Model *</div>
+            <input v-model="form.model" type="text" list="model-list" required placeholder="Phaze II…"
+              @change="onModelChange"
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+            <datalist id="model-list">
+              <option v-for="ball in brandModels" :key="ball.model" :value="ball.model" />
+            </datalist>
           </div>
         </div>
 
-        <!-- 1H / 2H toggle — only for Dual Angle -->
-        <div v-if="layoutSystem === 'dual-angle'" class="flex gap-2 mb-2">
-          <button type="button" @click="layoutHand = '1H'"
-            :class="layoutHand === '1H' ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'"
-            class="px-3 py-1 rounded-md border text-xs transition-colors">1H</button>
-          <button type="button" @click="layoutHand = '2H'"
-            :class="layoutHand === '2H' ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'"
-            class="px-3 py-1 rounded-md border text-xs transition-colors">2H</button>
+        <!-- AI spec lookup — always visible when brand + model are filled -->
+        <div v-if="form.brand.trim() && form.model.trim()" style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <button type="button" @click="fetchAndPopulate" :disabled="fetchingSpecs"
+            class="rr-btn rr-btn-ghost" style="padding: 8px 12px; font-size: 10px;">
+            {{ fetchingSpecs ? '✦ FINDING SPECS…' : '✦ FILL SPECS WITH AI' }}
+          </button>
+          <span v-if="specsError" class="rr-mono" style="font-size: 10px; color: var(--danger);">{{ specsError }}</span>
+          <span v-if="!specsError && !fetchingSpecs" class="rr-mono" style="font-size: 9px; color: var(--text-3);">auto-fills cover, surface &amp; role</span>
         </div>
 
-        <!-- Preset chips -->
-        <div v-if="layoutSystem !== 'custom'" class="flex flex-wrap gap-2 mb-2">
+        <!-- Weight & Role -->
+        <div class="rr-marquee rr-text-cyan" style="font-size: 10px; margin-bottom: 8px;">WEIGHT & ROLE</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Weight (lb)</div>
+            <input v-model.number="form.weight_lb" type="number" min="6" max="16" required
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Role</div>
+            <select v-model="form.role_tag" class="retro-input" style="width: 100%; box-sizing: border-box;">
+              <option value="">Select role</option>
+              <option value="benchmark">Benchmark</option>
+              <option value="strong_asym">Strong Asym</option>
+              <option value="transition">Transition</option>
+              <option value="urethane">Urethane</option>
+              <option value="spare">Spare</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Cover & Surface -->
+        <div class="rr-marquee rr-text-pink" style="font-size: 10px; margin-bottom: 8px;">COVER & SURFACE</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Cover Type</div>
+            <select v-model="form.cover_type" class="retro-input" style="width: 100%; box-sizing: border-box;">
+              <option value="">Select cover</option>
+              <option value="Solid Reactive">Solid Reactive</option>
+              <option value="Pearl Reactive">Pearl Reactive</option>
+              <option value="Hybrid Reactive">Hybrid Reactive</option>
+              <option value="Urethane">Urethane</option>
+              <option value="Polyester">Polyester</option>
+              <option value="Particle">Particle</option>
+            </select>
+          </div>
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Surface / Finish</div>
+            <input v-model="form.finish_surface" type="text" placeholder="500 / 2000 / polish"
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+          </div>
+        </div>
+
+        <!-- Layout -->
+        <div class="between" style="margin-bottom: 10px;">
+          <div class="rr-marquee rr-text-cyan" style="font-size: 10px;">LAYOUT</div>
+          <!-- System toggle -->
+          <div style="display: flex; border-radius: 4px; overflow: hidden; border: 1px solid var(--line);">
+            <button type="button" @click="layoutSystem = 'storm'"
+              :style="{
+                padding: '5px 10px', fontFamily: 'Bungee, sans-serif', fontSize: '9px', cursor: 'pointer', border: 'none',
+                background: layoutSystem === 'storm' ? 'var(--accent)' : 'var(--bg-1)',
+                color: layoutSystem === 'storm' ? '#FFF' : 'var(--text-2)',
+                boxShadow: layoutSystem === 'storm' ? 'var(--neon-glow-pink)' : 'none',
+              }">STORM</button>
+            <button type="button" @click="layoutSystem = 'dual-angle'"
+              :style="{
+                padding: '5px 10px', fontFamily: 'Bungee, sans-serif', fontSize: '9px', cursor: 'pointer', border: 'none',
+                background: layoutSystem === 'dual-angle' ? 'var(--accent)' : 'var(--bg-1)',
+                color: layoutSystem === 'dual-angle' ? '#FFF' : 'var(--text-2)',
+                boxShadow: layoutSystem === 'dual-angle' ? 'var(--neon-glow-pink)' : 'none',
+              }">DUAL ANG</button>
+            <button type="button" @click="layoutSystem = 'custom'"
+              :style="{
+                padding: '5px 10px', fontFamily: 'Bungee, sans-serif', fontSize: '9px', cursor: 'pointer', border: 'none',
+                background: layoutSystem === 'custom' ? 'var(--accent)' : 'var(--bg-1)',
+                color: layoutSystem === 'custom' ? '#FFF' : 'var(--text-2)',
+                boxShadow: layoutSystem === 'custom' ? 'var(--neon-glow-pink)' : 'none',
+              }">CUSTOM</button>
+          </div>
+        </div>
+
+        <!-- 1H / 2H toggle (dual angle only) -->
+        <div v-if="layoutSystem === 'dual-angle'" style="display: flex; gap: 6px; margin-bottom: 10px;">
+          <button type="button" @click="layoutHand = '1H'"
+            class="rr-chip" :class="layoutHand === '1H' ? 'rr-chip-accent' : ''"
+            style="cursor: pointer; padding: 5px 12px; font-size: 10px;">1H</button>
+          <button type="button" @click="layoutHand = '2H'"
+            class="rr-chip" :class="layoutHand === '2H' ? 'rr-chip-accent' : ''"
+            style="cursor: pointer; padding: 5px 12px; font-size: 10px;">2H</button>
+        </div>
+
+        <!-- Layout presets -->
+        <div v-if="layoutSystem !== 'custom'" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
           <button v-for="preset in activePresets" :key="preset.value" type="button"
             @click="selectLayout(preset.value)"
-            :class="form.layout_text === preset.value ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500'"
-            class="px-2.5 py-1 rounded-md border text-xs transition-colors text-left">
-            <div class="font-mono font-semibold">{{ preset.label }}</div>
-            <div class="text-[10px] leading-tight" :class="form.layout_text === preset.value ? 'text-blue-200' : 'text-slate-400'">{{ preset.desc }}</div>
+            class="rr-card"
+            :style="{
+              padding: '8px 10px', cursor: 'pointer', border: '1px solid',
+              borderColor: form.layout_text === preset.value ? 'var(--accent)' : 'var(--line)',
+              background: form.layout_text === preset.value ? 'var(--accent-dim)' : 'var(--bg-1)',
+              boxShadow: form.layout_text === preset.value ? 'var(--neon-glow-pink)' : 'none',
+            }">
+            <div class="rr-num" style="font-size: 11px; color: var(--text-0);">{{ preset.label }}</div>
+            <div class="rr-mono" style="font-size: 9px; color: var(--text-3); margin-top: 2px;">{{ preset.desc }}</div>
           </button>
         </div>
 
         <input v-model="form.layout_text" type="text"
           :placeholder="layoutSystem === 'custom' ? 'Enter layout…' : 'or type a custom layout…'"
-          class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500 text-sm" />
-      </div>
+          class="retro-input" style="width: 100%; box-sizing: border-box; margin-bottom: 16px;" />
 
-      <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Notes</label>
-        <textarea v-model="form.notes" rows="2" placeholder="Any notes about this ball…"
-          class="w-full rounded-lg bg-slate-800 border-slate-700 text-white placeholder-slate-500 resize-none" />
-      </div>
+        <!-- Notes -->
+        <div class="rr-marquee rr-text-pink" style="font-size: 10px; margin-bottom: 8px;">NOTES</div>
+        <textarea v-model="form.notes" rows="3" placeholder="Any notes about this ball…"
+          style="width: 100%; box-sizing: border-box; padding: 12px 14px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 6px; color: var(--text-0); font-family: 'Kalnia', serif; font-style: italic; font-size: 13px; resize: none; margin-bottom: 16px;"/>
 
-      <p v-if="error" class="text-red-400 text-sm">{{ error }}</p>
+        <!-- Error -->
+        <div v-if="error" class="rr-mono" style="font-size: 11px; color: var(--danger); margin-bottom: 12px;">{{ error }}</div>
 
-      <TapButton type="submit" :loading="saving" class="w-full">
-        {{ isEdit ? 'Save Changes' : 'Add Ball' }}
-      </TapButton>
-    </form>
+      </form>
+    </div>
+
+    <!-- Sticky bottom CTA -->
+    <div style="position: sticky; bottom: 0; background: #14091E; border-top: 1px solid var(--accent-line); padding: 12px 16px 28px; flex-shrink: 0;">
+      <button type="button" @click="save" :disabled="saving"
+        class="rr-btn rr-btn-primary" style="width: 100%; padding: 16px; font-size: 13px;">
+        {{ saving ? 'SAVING…' : (isEdit ? 'SAVE CHANGES' : 'ADD BALL →') }}
+      </button>
+    </div>
+
   </div>
 </template>
+
+<style scoped>
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.screen-root {
+  background: var(--bg-0);
+  color: var(--text-0);
+}
+.retro-input {
+  padding: 12px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text-0);
+  font-family: 'Kalnia', serif;
+  font-style: italic;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.retro-input:focus {
+  border-color: var(--accent-line);
+}
+select.retro-input {
+  font-family: 'Bungee', sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  cursor: pointer;
+}
+</style>

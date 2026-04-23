@@ -1,0 +1,189 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "RollIQ — retro bowling hi-fi design tokens. Exports both dark (neon alley) and light (vintage poster) modes.",
+  "meta": {
+    "name": "RollIQ",
+    "direction": "retro-bowling",
+    "version": "1.0.0"
+  },
+
+  "color": {
+    "brand": {
+      "pink":  { "$value": "#FF2E6E", "$description": "Neon hot pink — primary accent (dark mode)" },
+      "cyan":  { "$value": "#00E0FF", "$description": "Electric cyan — secondary accent (dark mode)" },
+      "magenta": { "$value": "#D91458", "$description": "Deep magenta — primary accent (light mode)" },
+      "teal":  { "$value": "#0097B8", "$description": "Deep teal — secondary accent (light mode)" },
+      "purple": { "$value": "#3B1E5A", "$description": "Bowling alley purple — base (dark mode)" },
+      "cream": { "$value": "#FFF6E0", "$description": "Warm cream — text on dark / base on light" }
+    },
+
+    "dark": {
+      "bg-0":      { "$value": "#1A1020", "$description": "Deepest bg — page" },
+      "bg-1":      { "$value": "#221630", "$description": "Card surface" },
+      "bg-2":      { "$value": "#2D1D40", "$description": "Elevated card" },
+      "bg-3":      { "$value": "#3B1E5A", "$description": "Strong purple — progress tracks, dividers" },
+      "line":      { "$value": "#3A2550", "$description": "Default border" },
+      "line-soft": { "$value": "#281A3A", "$description": "Subtle divider" },
+      "text-0":    { "$value": "#FFF6E0", "$description": "Primary text — cream" },
+      "text-1":    { "$value": "#E8D9B5", "$description": "Body text" },
+      "text-2":    { "$value": "#B8A88A", "$description": "Secondary text" },
+      "text-3":    { "$value": "#6E5F75", "$description": "Tertiary — meta, labels" },
+      "accent":    { "$value": "#FF2E6E", "$description": "Primary accent — pink" },
+      "accent-2":  { "$value": "#00E0FF", "$description": "Secondary accent — cyan" },
+      "accent-dim":  { "$value": "rgba(255,46,110,0.14)", "$description": "Accent tint — chip bg" },
+      "accent-line": { "$value": "rgba(255,46,110,0.50)", "$description": "Accent border" },
+      "success":   { "$value": "#6CFF9A" },
+      "warn":      { "$value": "#FFD83D" },
+      "danger":    { "$value": "#FF2E6E" }
+    },
+
+    "light": {
+      "bg-0":      { "$value": "#FFF6E0", "$description": "Page bg — warm cream" },
+      "bg-1":      { "$value": "#FFFBEF", "$description": "Card surface" },
+      "bg-2":      { "$value": "#FFFFFF", "$description": "Elevated card" },
+      "bg-3":      { "$value": "#F0E3C4", "$description": "Progress tracks, dividers" },
+      "line":      { "$value": "#E8D9B5", "$description": "Default border" },
+      "line-soft": { "$value": "#F5EAD0", "$description": "Subtle divider" },
+      "text-0":    { "$value": "#1A1020", "$description": "Primary text — deep purple-black" },
+      "text-1":    { "$value": "#2D1D40", "$description": "Body text" },
+      "text-2":    { "$value": "#6E5F75", "$description": "Secondary text" },
+      "text-3":    { "$value": "#9C8DA5", "$description": "Tertiary" },
+      "accent":    { "$value": "#D91458", "$description": "Primary accent — deep magenta" },
+      "accent-2":  { "$value": "#0097B8", "$description": "Secondary accent — teal" },
+      "accent-dim":  { "$value": "rgba(217,20,88,0.08)" },
+      "accent-line": { "$value": "rgba(217,20,88,0.35)" },
+      "success":   { "$value": "#1FA26A" },
+      "warn":      { "$value": "#E09530" },
+      "danger":    { "$value": "#D91458" }
+    }
+  },
+
+  "font": {
+    "family": {
+      "script":   { "$value": "'Kalnia', 'Playfair Display', serif", "$description": "Italic script — screen names, event names, ball names" },
+      "marquee":  { "$value": "'Bungee', 'Archivo', sans-serif", "$description": "Retro caps — section labels, chips, buttons, ALL NUMBERS" },
+      "display":  { "$value": "'Monoton', 'Archivo', sans-serif", "$description": "Decorative display — used sparingly for special headers" },
+      "mono":     { "$value": "'JetBrains Mono', 'IBM Plex Mono', monospace", "$description": "Metadata, timestamps, specs" },
+      "body":     { "$value": "'Inter', -apple-system, system-ui, sans-serif", "$description": "Default body text" }
+    },
+    "size": {
+      "display-xl": { "$value": "88px", "$description": "Hero number (Pulse 30-day avg)" },
+      "display-lg": { "$value": "72px", "$description": "Mobile hero number" },
+      "display-md": { "$value": "40px", "$description": "Script page title (Pulse, Analytics)" },
+      "h1":         { "$value": "32px" },
+      "h2":         { "$value": "22px", "$description": "Script section header (Recent sessions, In the bag)" },
+      "h3":         { "$value": "17px" },
+      "body":       { "$value": "13px" },
+      "body-sm":    { "$value": "12px" },
+      "caption":    { "$value": "11px" },
+      "mono":       { "$value": "10px", "$description": "Metadata, specs" },
+      "marquee":    { "$value": "10px", "$description": "Bungee section labels — TUE · APR 23 · EVENING" },
+      "marquee-sm": { "$value": "9px", "$description": "Chip text" }
+    },
+    "tracking": {
+      "marquee":   { "$value": "0.10em", "$description": "For Bungee caps" },
+      "tracked":   { "$value": "0.14em", "$description": "For mono uppercase labels" },
+      "script":    { "$value": "-0.01em", "$description": "Kalnia italic" }
+    }
+  },
+
+  "radius": {
+    "xs": { "$value": "3px" },
+    "sm": { "$value": "4px", "$description": "Default retro corner — scoresheet cells, chips, cards" },
+    "md": { "$value": "6px", "$description": "Inputs, segmented controls" },
+    "lg": { "$value": "8px" },
+    "full": { "$value": "9999px" }
+  },
+
+  "spacing": {
+    "0": { "$value": "0" },
+    "1": { "$value": "2px" },
+    "2": { "$value": "4px" },
+    "3": { "$value": "6px" },
+    "4": { "$value": "8px" },
+    "5": { "$value": "10px" },
+    "6": { "$value": "12px" },
+    "7": { "$value": "14px" },
+    "8": { "$value": "16px" },
+    "10": { "$value": "20px" },
+    "12": { "$value": "24px" },
+    "14": { "$value": "28px" },
+    "16": { "$value": "32px" }
+  },
+
+  "effect": {
+    "neon-glow-pink": {
+      "$value": "0 0 12px rgba(255,46,110,0.6), 0 0 28px rgba(255,46,110,0.25)",
+      "$description": "Dark mode only — applied to buttons, live chips, primary CTAs"
+    },
+    "neon-glow-cyan": {
+      "$value": "0 0 12px rgba(0,224,255,0.55), 0 0 28px rgba(0,224,255,0.22)",
+      "$description": "Dark mode only — applied to cyan accents"
+    },
+    "text-glow-pink": {
+      "$value": "text-shadow: 0 0 8px rgba(255,46,110,0.6), 0 0 18px rgba(255,46,110,0.35); color: #FF2E6E",
+      "$description": "Dark mode glowing pink text (numbers, 'LIVE' marquee)"
+    },
+    "text-glow-cyan": {
+      "$value": "text-shadow: 0 0 8px rgba(0,224,255,0.55), 0 0 18px rgba(0,224,255,0.3); color: #00E0FF",
+      "$description": "Dark mode glowing cyan text (primary hero number)"
+    },
+    "scanlines": {
+      "$value": "repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,0.015) 3px 4px)",
+      "$description": "Dark mode overlay — apply to hero cards only"
+    },
+    "gradient-accent-dark":  { "$value": "linear-gradient(135deg, #FF2E6E 0%, #8A4BE8 100%)" },
+    "gradient-accent-light": { "$value": "linear-gradient(135deg, #D91458 0%, #6B3DB8 100%)" },
+    "gradient-hero-dark":    { "$value": "linear-gradient(135deg, #221630 0%, #261538 100%)", "$description": "Hero card bg — dark mode" }
+  },
+
+  "component": {
+    "chip": {
+      "padding":      { "$value": "3px 10px" },
+      "radius":       { "$value": "$radius.sm" },
+      "font-size":    { "$value": "11px" },
+      "font-family":  { "$value": "$font.family.body" },
+      "text-transform": { "$value": "uppercase" },
+      "letter-spacing": { "$value": "0.05em" },
+      "font-weight":  { "$value": 600 }
+    },
+    "button-primary": {
+      "padding":      { "$value": "10px 16px" },
+      "radius":       { "$value": "$radius.sm" },
+      "font-size":    { "$value": "11px" },
+      "font-family":  { "$value": "$font.family.marquee" },
+      "text-transform": { "$value": "uppercase" },
+      "letter-spacing": { "$value": "0.08em" },
+      "bg-dark":      { "$value": "$color.dark.accent" },
+      "bg-light":     { "$value": "$color.light.accent" },
+      "color":        { "$value": "#FFFFFF" },
+      "shadow-dark":  { "$value": "$effect.neon-glow-pink" }
+    },
+    "card": {
+      "bg-dark":      { "$value": "$color.dark.bg-1" },
+      "bg-light":     { "$value": "$color.light.bg-1" },
+      "border":       { "$value": "1px solid $color.dark.line" },
+      "radius":       { "$value": "$radius.md" }
+    },
+    "scoresheet-cell": {
+      "padding":          { "$value": "6px 4px 8px" },
+      "border-right":     { "$value": "1px solid $color.dark.line-soft" },
+      "strike-bg":        { "$value": "rgba(0,224,255,0.06)" },
+      "spare-bg":         { "$value": "rgba(255,46,110,0.05)" },
+      "current-frame-border": { "$value": "2px solid $color.dark.accent" },
+      "current-frame-bg":     { "$value": "rgba(255,46,110,0.15)" },
+      "ball-mark-size":       { "$value": "10px", "$description": "Font size for X / / numbers at top of cell" },
+      "running-score-size":   { "$value": "16px", "$description": "Font size for running total at bottom of cell" }
+    }
+  },
+
+  "breakpoint": {
+    "mobile":  { "$value": "390px" },
+    "tablet":  { "$value": "768px" },
+    "desktop": { "$value": "1440px" }
+  },
+
+  "hit-target": {
+    "min": { "$value": "44px", "$description": "Minimum tap target on mobile — strike/spare buttons use 56px" }
+  }
+}

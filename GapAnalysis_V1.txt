@@ -1,0 +1,114 @@
+---
+  Session Start Form — not designed at all
+
+  The Pulse screen has a "Start new session" button but no form behind it. This is one of the most important
+  screens and it's completely missing. It needs:
+
+  - Center/alley name
+  - Event type (practice / league / tournament)
+  - League or tournament name (e.g. "Thursday Doubles" — not in design or schema yet)
+  - Lane pair
+  - Oil pattern picker
+  - Number of games planned (sets up the scorecard)
+  - Entering average (the number locked for this event — different from your rolling avg)
+  - Handicap (conditional — only shown when not practice)
+  - Scratch or handicap format toggle
+
+  ---
+  Profile / Settings — not designed at all
+
+  The "More" tab is a placeholder. Nothing shows the bowler profile, which is where your most important
+  personalization lives:
+
+  - Display name, handedness, style (1H/2H)
+  - PAP, axis tilt, axis rotation
+  - Rev profile, speed profile, typical miss
+  - Analytics consent toggle ("include my anonymous data in community comparisons") — column exists in DB, no UI
+  - Basic vs. Advanced frame capture toggle — column exists, no UI
+
+  ---
+  Arsenal screen — gaps
+
+  The card design is solid but missing data bowlers care about:
+
+  - Role tag (benchmark / strong asym / transition / urethane / spare) — not shown on card
+  - Layout — not shown on card (this is why they drilled it)
+  - Surface/finish — not shown
+  - Weight — not shown
+  - No edit action on the list card (Ball Detail has "edit" in the top right — good, but you can't get there
+  from the list without tapping into it)
+  - "In bag" is a filter but no way to toggle it — how does a ball get marked "in bag"? The design doesn't show
+  that interaction
+
+  ---
+  Ball Detail — gaps
+
+  Good screen overall. Missing:
+
+  - Role tag badge (you have this on the form, should show here)
+  - Weight (shown as "15 LB" in the active ball strip on Live — should be on this screen too)
+  - Core type (you capture it, not shown)
+  - Status — no way to mark a ball as retired from this screen
+
+  ---
+  Live Score — gaps
+
+  Strong screen. One structural gap:
+
+  - Which game of how many — it shows "Game 2 · Frame 7" but no sense of "Game 2 of 3." The session context (how
+   many games planned) isn't surfaced
+  - Series running total — league bowlers track their series (sum across games). Not shown anywhere
+  - No way to enter frame-level notes mid-game (the frame_note field)
+  - Advanced frame data (foot board, target, adjustment) — you said you want basic/advanced toggle. The design
+  has no entry point for this even in "coming soon" form
+
+  ---
+  Sessions List — gaps
+
+  - Session cards don't show event name (e.g. "Thursday Doubles") — just event type
+  - No series score shown (just high game)
+  - No pattern shown on the card (important context — knowing it was a Chameleon session matters)
+  - No total games count shown (it shows "3 games" in the mock but the schema supports it)
+
+  ---
+  Analytics — gaps
+
+  - No filter by ball — the ball×oil table is great but you can't drill into one ball
+  - No date range selector (shows "90d" chip but no UI to change it)
+  - No pattern filter — "how did I do on long patterns"
+  - No entry point for the "bowlers like you" comparison — this is a key differentiator, even if it's a v2
+  feature, placeholder it
+
+  ---
+  Navigation — structural question
+
+  The "More" tab is undefined. Given what's missing, it probably contains: Profile, Settings, Help. That needs
+  to be designed.
+
+  Also — onboarding. A brand new user hits Pulse with no data. The "30-day avg: 213" hero and "Start session"
+  CTA need a zero-state version.
+
+  ---
+  Summary for the designer
+
+  ┌───────────────────────┬───────────────────────────────────────────────────────────────────────────────┐
+  │        Screen         │                                    Status                                     │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Session Start Form    │ Missing entirely                                                              │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Profile / Settings    │ Missing entirely                                                              │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ "More" tab contents   │ Missing entirely                                                              │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Zero state (new user) │ Missing entirely                                                              │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Arsenal card          │ Needs role tag, layout, surface, weight, in-bag toggle interaction            │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Ball Detail           │ Needs role tag, weight, core, retire action                                   │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Live Score            │ Needs series total, game X of Y, frame note entry                             │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Sessions List         │ Needs event name, pattern, series score                                       │
+  ├───────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+  │ Analytics             │ Needs ball filter, date range, pattern filter, "bowlers like you" placeholder │
+  └───────────────────────┴───────────────────────────────────────────────────────────────────────────────┘

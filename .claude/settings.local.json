@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.stormbowling.com)",
+      "WebFetch(domain:www.brunswickbowling.com)",
+      "WebFetch(domain:www.dv8bowling.com)",
+      "WebFetch(domain:900global.com)",
+      "WebFetch(domain:columbia300.com)",
+      "WebFetch(domain:www.radicalbowling.com)",
+      "WebFetch(domain:www.trackbowling.com)",
+      "WebFetch(domain:trackbowling.com)",
+      "WebFetch(domain:www.bowlingball.com)",
+      "Bash(git remote *)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(gunzip -c \"C:/Users/cmiller/.claude/projects/D--CodeBases-RollIQ/d148bca3-c459-4c5f-92d3-ab3f55fa8a62/tool-results/webfetch-1776978581996-vk0xre.bin\")",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p /tmp/rolliq_design)",
+      "Bash(tar -xf \"C:/Users/cmiller/.claude/projects/D--CodeBases-RollIQ/d148bca3-c459-4c5f-92d3-ab3f55fa8a62/tool-results/webfetch-1776978581996-vk0xre.bin\" -C /tmp/rolliq_design)",
+      "Bash(cp \"/d/CodeBases/RollIQ/.claude/../../../Users/cmiller/.claude/projects/D--CodeBases-RollIQ/d148bca3-c459-4c5f-92d3-ab3f55fa8a62/tool-results/webfetch-1776978581996-vk0xre.bin\" /tmp/design.tar.gz)",
+      "Bash(tar -xf /tmp/design.tar.gz -C /tmp/rolliq_design)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

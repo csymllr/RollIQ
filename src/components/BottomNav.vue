@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+
 const route = useRoute()
 
 const tabs = [
-  { to: '/dashboard', label: 'Home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  { to: '/sessions', label: 'Sessions', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-  { to: '/arsenal', label: 'Arsenal', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z' },
-  { to: '/profile', label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+  { to: '/dashboard', icon: '◉', label: 'PULSE' },
+  { to: '/sessions',  icon: '▶', label: 'PLAY'  },
+  { to: '/arsenal',   icon: '◐', label: 'GEAR'  },
+  { to: '/analytics', icon: '△', label: 'STATS' },
+  { to: '/profile',   icon: '≡', label: 'MORE'  },
 ]
 
 function isActive(path: string) {
@@ -15,20 +17,81 @@ function isActive(path: string) {
 </script>
 
 <template>
-  <nav class="fixed bottom-0 inset-x-0 bg-slate-900 border-t border-slate-800 safe-area-pb z-50">
-    <div class="flex">
-      <router-link
-        v-for="tab in tabs"
-        :key="tab.to"
-        :to="tab.to"
-        class="flex-1 flex flex-col items-center justify-center tap-target py-2 text-xs transition-colors"
-        :class="isActive(tab.to) ? 'text-indigo-400' : 'text-slate-500 hover:text-slate-300'"
-      >
-        <svg class="w-6 h-6 mb-0.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" :d="tab.icon" />
-        </svg>
-        <span>{{ tab.label }}</span>
-      </router-link>
-    </div>
+  <nav class="bottom-nav">
+    <!-- Floating FAB -->
+    <router-link to="/sessions/new" class="fab rr-marquee rr-glow-pink" aria-label="New session">＋</router-link>
+
+    <router-link
+      v-for="tab in tabs"
+      :key="tab.to"
+      :to="tab.to"
+      class="nav-tab"
+      :class="{ 'nav-tab-active': isActive(tab.to) }"
+    >
+      <span class="tab-icon">{{ tab.icon }}</span>
+      <span class="tab-label rr-marquee">{{ tab.label }}</span>
+    </router-link>
   </nav>
 </template>
+
+<style scoped>
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--sidebar-bg);
+  border-top: 1px solid var(--accent-line);
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  z-index: 50;
+}
+
+.fab {
+  position: absolute;
+  right: 16px;
+  top: -26px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  text-decoration: none;
+  box-shadow: var(--neon-glow-pink), 0 8px 24px rgba(255, 46, 110, 0.45);
+  transition: filter 0.15s;
+}
+.fab:hover { filter: brightness(1.15); }
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--text-3);
+  transition: color 0.12s, text-shadow 0.12s;
+  flex: 1;
+  padding: 2px 0;
+}
+
+.nav-tab-active {
+  color: var(--accent);
+  text-shadow: var(--neon-glow-pink);
+}
+
+.tab-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.tab-label {
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+</style>

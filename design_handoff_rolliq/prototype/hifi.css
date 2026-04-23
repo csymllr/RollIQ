@@ -1,0 +1,251 @@
+/* hifi.css — shared hi-fi tokens for both Athletic and Bowling-native directions
+   Both directions support light/dark via [data-theme] attribute on root
+*/
+
+/* ─────────── ATHLETIC (WHOOP-CODED) ─────────── */
+/* Dark (primary) */
+[data-theme="athletic-dark"] {
+  --bg-0: #0B0F14;          /* deepest bg */
+  --bg-1: #14191F;          /* card surface */
+  --bg-2: #1C222A;          /* elevated */
+  --bg-3: #2A2F36;          /* border / divider high */
+  --line: #232830;          /* border default */
+  --line-soft: #1A1F26;     /* subtle divider */
+  --text-0: #FFFFFF;        /* primary text */
+  --text-1: #C7CDD4;        /* body */
+  --text-2: #8891A0;        /* secondary */
+  --text-3: #5A6470;        /* tertiary */
+  --accent: #00D1FF;        /* electric cyan */
+  --accent-dim: rgba(0,209,255,0.14);
+  --accent-line: rgba(0,209,255,0.35);
+  --success: #2FE08A;
+  --warn: #FFB547;
+  --danger: #FF5C6C;
+  --grad-accent: linear-gradient(135deg, #00D1FF 0%, #7B8CFF 100%);
+}
+[data-theme="athletic-light"] {
+  --bg-0: #F5F7FA;
+  --bg-1: #FFFFFF;
+  --bg-2: #F9FAFC;
+  --bg-3: #E5EAF0;
+  --line: #E5EAF0;
+  --line-soft: #EEF1F5;
+  --text-0: #0B0F14;
+  --text-1: #2A2F36;
+  --text-2: #5A6470;
+  --text-3: #8891A0;
+  --accent: #0099C4;
+  --accent-dim: rgba(0,153,196,0.10);
+  --accent-line: rgba(0,153,196,0.30);
+  --success: #1FA26A;
+  --warn: #E09530;
+  --danger: #E24654;
+  --grad-accent: linear-gradient(135deg, #0099C4 0%, #5566D6 100%);
+}
+
+/* ─────────── BOWLING-NATIVE (RETRO NEON) ─────────── */
+/* Dark (primary) */
+[data-theme="retro-dark"] {
+  --bg-0: #1A1020;          /* deep purple-black */
+  --bg-1: #221630;          /* card */
+  --bg-2: #2D1D40;          /* elevated */
+  --bg-3: #3B1E5A;          /* strong purple */
+  --line: #3A2550;
+  --line-soft: #281A3A;
+  --text-0: #FFF6E0;        /* cream — primary */
+  --text-1: #E8D9B5;
+  --text-2: #B8A88A;
+  --text-3: #6E5F75;
+  --accent: #FF2E6E;        /* neon pink */
+  --accent-2: #00E0FF;      /* neon cyan */
+  --accent-dim: rgba(255,46,110,0.14);
+  --accent-line: rgba(255,46,110,0.50);
+  --success: #6CFF9A;
+  --warn: #FFD83D;
+  --danger: #FF2E6E;
+  --neon-glow-pink: 0 0 12px rgba(255,46,110,0.6), 0 0 28px rgba(255,46,110,0.25);
+  --neon-glow-cyan: 0 0 12px rgba(0,224,255,0.55), 0 0 28px rgba(0,224,255,0.22);
+  --grad-accent: linear-gradient(135deg, #FF2E6E 0%, #8A4BE8 100%);
+}
+[data-theme="retro-light"] {
+  --bg-0: #FFF6E0;
+  --bg-1: #FFFBEF;
+  --bg-2: #FFFFFF;
+  --bg-3: #F0E3C4;
+  --line: #E8D9B5;
+  --line-soft: #F5EAD0;
+  --text-0: #1A1020;
+  --text-1: #2D1D40;
+  --text-2: #6E5F75;
+  --text-3: #9C8DA5;
+  --accent: #D91458;
+  --accent-2: #0097B8;
+  --accent-dim: rgba(217,20,88,0.08);
+  --accent-line: rgba(217,20,88,0.35);
+  --success: #1FA26A;
+  --warn: #E09530;
+  --danger: #D91458;
+  --neon-glow-pink: none;
+  --neon-glow-cyan: none;
+  --grad-accent: linear-gradient(135deg, #D91458 0%, #6B3DB8 100%);
+}
+
+/* ─────────── SHARED RESET + TYPE ─────────── */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+.theme-root {
+  background: var(--bg-0);
+  background-color: var(--bg-0);
+  color: var(--text-1);
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Explicit literal fallbacks so html-to-image resolves colors even when CSS vars trip it up */
+.theme-root[data-theme="retro-dark"]     { background-color: #0A0410 !important; }
+.theme-root[data-theme="retro-light"]    { background-color: #FFF6E0 !important; }
+.theme-root[data-theme="athletic-dark"]  { background-color: #080C12 !important; }
+.theme-root[data-theme="athletic-light"] { background-color: #F3F5F8 !important; }
+
+/* ATHLETIC TYPE */
+.theme-root.athletic {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+}
+.athletic .display { font-family: 'Archivo', 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.03em; }
+.athletic .mono    { font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace; letter-spacing: 0; }
+.athletic .num     { font-family: 'Archivo', 'Inter', sans-serif; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* RETRO TYPE */
+.theme-root.retro {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+}
+.retro .display { font-family: 'Monoton', 'Archivo', sans-serif; font-weight: 400; letter-spacing: 0.02em; }
+.retro .script  { font-family: 'Kalnia', 'Playfair Display', serif; font-weight: 600; font-style: italic; }
+.retro .marquee { font-family: 'Bungee', 'Archivo', sans-serif; font-weight: 400; letter-spacing: 0.04em; }
+.retro .mono    { font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace; }
+.retro .num     { font-family: 'Bungee', 'Archivo', sans-serif; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+
+/* UTIL */
+.tabular { font-variant-numeric: tabular-nums; }
+.uppercase { text-transform: uppercase; }
+.tracked { letter-spacing: 0.14em; }
+
+/* ATHLETIC CARDS */
+.athletic .card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  position: relative;
+}
+.athletic .card-elev {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* RETRO CARDS */
+.retro .card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  position: relative;
+}
+.retro .card-elev {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+/* chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-2);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.chip.accent {
+  background: var(--accent-dim);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+.retro .chip { border-radius: 4px; }
+
+/* grid dot pattern for cards */
+.athletic .card.grid-bg::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 12px;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+  pointer-events: none;
+}
+
+/* retro scanlines decoration for hero */
+.retro .scanlines::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(255,255,255,0.015) 3px,
+    rgba(255,255,255,0.015) 4px
+  );
+  pointer-events: none;
+}
+
+/* neon glow utilities for retro */
+.retro .glow-pink { box-shadow: var(--neon-glow-pink); }
+.retro .glow-cyan { box-shadow: var(--neon-glow-cyan); }
+.retro .text-glow-pink { color: var(--accent); text-shadow: 0 0 8px rgba(255,46,110,0.6), 0 0 18px rgba(255,46,110,0.35); }
+.retro .text-glow-cyan { color: var(--accent-2); text-shadow: 0 0 8px rgba(0,224,255,0.55), 0 0 18px rgba(0,224,255,0.3); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 16px; font-weight: 600; font-size: 13px;
+  border-radius: 8px; border: 1px solid transparent;
+  background: var(--bg-2); color: var(--text-0);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+.athletic .btn { border-radius: 8px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+.athletic .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.athletic .btn.primary:hover { filter: brightness(1.1); }
+.athletic .btn.ghost { background: transparent; border-color: var(--line); color: var(--text-1); }
+
+.retro .btn { border-radius: 4px; font-family: 'Bungee', 'Archivo', sans-serif; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
+.retro .btn.primary {
+  background: var(--accent); color: #FFF;
+  border: 1px solid var(--accent);
+  box-shadow: var(--neon-glow-pink);
+}
+.retro .btn.primary:hover { filter: brightness(1.15); }
+.retro .btn.ghost { background: transparent; border: 1px solid var(--accent-line); color: var(--accent); }
+
+/* sparkline */
+.spark path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.spark .area { fill: url(#spark-grad); stroke: none; }
+
+/* layout helpers */
+.row { display: flex; gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.center { display: flex; align-items: center; justify-content: center; }
+.grow { flex: 1 1 auto; min-height: 0; }
+
+/* hide scrollbars */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }

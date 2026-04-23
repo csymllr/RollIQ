@@ -2,7 +2,162 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === RollIQ Design Tokens === */
+/* ═══════════════════════════════════════════════
+   RETRO DESIGN SYSTEM — bowling-native neon
+   ═══════════════════════════════════════════════ */
+
+[data-theme="retro-dark"] {
+  --bg-0: #1A1020;
+  --bg-1: #221630;
+  --bg-2: #2D1D40;
+  --bg-3: #3B1E5A;
+  --line: #3A2550;
+  --line-soft: #281A3A;
+  --text-0: #FFF6E0;
+  --text-1: #E8D9B5;
+  --text-2: #B8A88A;
+  --text-3: #6E5F75;
+  --accent: #FF2E6E;
+  --accent-2: #00E0FF;
+  --accent-dim: rgba(255,46,110,0.14);
+  --accent-line: rgba(255,46,110,0.50);
+  --success: #6CFF9A;
+  --warn: #FFD83D;
+  --danger: #FF2E6E;
+  --neon-glow-pink: 0 0 12px rgba(255,46,110,0.6), 0 0 28px rgba(255,46,110,0.25);
+  --neon-glow-cyan: 0 0 12px rgba(0,224,255,0.55), 0 0 28px rgba(0,224,255,0.22);
+  --grad-accent: linear-gradient(135deg, #FF2E6E 0%, #8A4BE8 100%);
+  --sidebar-bg: #14091E;
+}
+
+[data-theme="retro-light"] {
+  --bg-0: #FFF6E0;
+  --bg-1: #FFFBEF;
+  --bg-2: #FFFFFF;
+  --bg-3: #F0E3C4;
+  --line: #E8D9B5;
+  --line-soft: #F5EAD0;
+  --text-0: #1A1020;
+  --text-1: #2D1D40;
+  --text-2: #6E5F75;
+  --text-3: #9C8DA5;
+  --accent: #D91458;
+  --accent-2: #0097B8;
+  --accent-dim: rgba(217,20,88,0.08);
+  --accent-line: rgba(217,20,88,0.35);
+  --success: #1FA26A;
+  --warn: #E09530;
+  --danger: #D91458;
+  --neon-glow-pink: none;
+  --neon-glow-cyan: none;
+  --grad-accent: linear-gradient(135deg, #D91458 0%, #6B3DB8 100%);
+  --sidebar-bg: #FFF9E8;
+}
+
+/* ── Retro type utilities ── */
+.rr-script  { font-family: 'Kalnia', serif; font-weight: 600; font-style: italic; }
+.rr-marquee { font-family: 'Bungee', sans-serif; font-weight: 400; letter-spacing: 0.06em; }
+.rr-num     { font-family: 'Bungee', sans-serif; font-weight: 400; font-variant-numeric: tabular-nums; }
+.rr-mono    { font-family: 'JetBrains Mono', monospace; }
+
+/* ── Retro glow utilities ── */
+.rr-glow-pink  { box-shadow: var(--neon-glow-pink); }
+.rr-glow-cyan  { box-shadow: var(--neon-glow-cyan); }
+.rr-text-pink  { color: var(--accent); text-shadow: 0 0 8px rgba(255,46,110,0.6), 0 0 18px rgba(255,46,110,0.35); }
+.rr-text-cyan  { color: var(--accent-2); text-shadow: 0 0 8px rgba(0,224,255,0.55), 0 0 18px rgba(0,224,255,0.3); }
+
+[data-theme="retro-light"] .rr-text-pink { text-shadow: none; }
+[data-theme="retro-light"] .rr-text-cyan { text-shadow: none; }
+
+/* ── Retro card ── */
+.rr-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  position: relative;
+}
+
+/* ── Retro chip ── */
+.rr-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  font-family: 'Bungee', sans-serif;
+  font-size: 9px; letter-spacing: 0.06em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.rr-chip-accent {
+  background: var(--accent-dim);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+/* ── Retro button ── */
+.rr-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 16px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px; letter-spacing: 0.08em;
+  border-radius: 4px; border: 1px solid transparent;
+  background: var(--bg-2); color: var(--text-0);
+  cursor: pointer;
+  transition: filter 0.15s;
+  text-transform: uppercase;
+}
+.rr-btn-primary {
+  background: var(--accent); color: #FFF;
+  border-color: var(--accent);
+  box-shadow: var(--neon-glow-pink);
+}
+.rr-btn-primary:hover { filter: brightness(1.12); }
+.rr-btn-ghost {
+  background: transparent;
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+.rr-btn-cyan {
+  background: var(--accent-2); color: #0B0012;
+  border-color: var(--accent-2);
+  box-shadow: var(--neon-glow-cyan);
+}
+
+/* ── Scanlines overlay ── */
+.rr-scanlines::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 3px,
+    rgba(255,255,255,0.015) 3px, rgba(255,255,255,0.015) 4px
+  );
+  pointer-events: none;
+}
+
+/* ── Ball avatar glow ── */
+.rr-ball {
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--ball-color, #FF2E6E), color-mix(in srgb, var(--ball-color, #FF2E6E) 20%, transparent) 70%);
+  border: 1px solid var(--ball-color, #FF2E6E);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ball-color, #FF2E6E) 40%, transparent);
+}
+
+/* ── No scrollbar ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* ── Retro progress bar ── */
+.rr-bar {
+  height: 3px; background: var(--bg-3); border-radius: 2px; overflow: hidden;
+}
+.rr-bar-fill {
+  height: 100%; background: var(--accent); box-shadow: var(--neon-glow-pink);
+  border-radius: 2px;
+}
+
+/* === RollIQ Design Tokens (legacy sketch era, kept for auth screens) === */
 :root {
   --paper: #faf8f3;
   --paper-2: #f3efe4;

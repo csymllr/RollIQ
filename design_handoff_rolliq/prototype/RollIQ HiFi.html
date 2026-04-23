@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RollIQ — Hi-Fi · Retro Thin Vertical</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Monoton&family=Bungee&family=Kalnia:ital,wght@0,600;1,600&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hifi.css">
+<style>
+  html, body { background: #0a0a10; margin: 0; }
+  body { font-family: 'Inter', sans-serif; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="hifi-retro.jsx"></script>
+<script type="text/babel" src="hifi-retro-screens.jsx"></script>
+<script type="text/babel">
+const DEFAULTS = /*EDITMODE-BEGIN*/{
+  "mode": "dark"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(DEFAULTS);
+  const theme = t.mode === 'light' ? 'retro-light' : 'retro-dark';
+  const isLight = t.mode === 'light';
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="pulse" title="Pulse · home" subtitle="daily read · 30-day avg · coach insight">
+          <DCArtboard id="pulse-d" label={`Pulse · Desktop · ${t.mode}`} width={1440} height={900}>
+            <window.Retro_Pulse_D theme={theme}/>
+          </DCArtboard>
+          <DCArtboard id="pulse-m" label={`Pulse · Mobile · ${t.mode}`} width={390} height={800}>
+            <window.Retro_Pulse_M theme={theme}/>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="live" title="Live game · in-session" subtitle="scoresheet-hero · pin deck · live coach">
+          <DCArtboard id="live-d" label={`Live · Desktop · ${t.mode}`} width={1440} height={900}>
+            <window.Retro_Live_D theme={theme}/>
+          </DCArtboard>
+          <DCArtboard id="live-m" label={`Live · Mobile · ${t.mode}`} width={390} height={800}>
+            <window.Retro_Live_M theme={theme}/>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="analytics" title="Analytics · deep dive" subtitle="trend · per-ball · per-pattern · leaks heatmap">
+          <DCArtboard id="analytics-d" label={`Analytics · Desktop · ${t.mode}`} width={1440} height={900}>
+            <window.Retro_Analytics_D theme={theme}/>
+          </DCArtboard>
+          <DCArtboard id="analytics-m" label={`Analytics · Mobile · ${t.mode}`} width={390} height={800}>
+            <window.Retro_Analytics_M theme={theme}/>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="capture" title="Capture · session + arsenal" subtitle="start a session · manage the bag">
+          <DCArtboard id="session-m" label={`Session Start · Mobile · ${t.mode}`} width={390} height={800}>
+            <window.Retro_SessionStart_M theme={theme}/>
+          </DCArtboard>
+          <DCArtboard id="arsenal-m" label={`Arsenal · Mobile · ${t.mode}`} width={390} height={800}>
+            <window.Retro_Arsenal_M theme={theme}/>
+          </DCArtboard>
+          <DCArtboard id="ball-m" label={`Ball Detail · Mobile · ${t.mode}`} width={390} height={800}>
+            <window.Retro_BallDetail_M theme={theme}/>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="notes" title="Notes on the system"
+          subtitle="how dark vs light differ · when to use what">
+          <DCArtboard id="notes-card" label="Design system note" width={640} height={560}>
+            <div style={{
+              background: isLight ? '#FFF6E0' : '#1A1020',
+              color: isLight ? '#1A1020' : '#E8D9B5',
+              padding: 28, height: '100%', overflow: 'auto',
+              fontFamily: 'Inter, sans-serif',
+            }}>
+              <div style={{ fontFamily: 'Kalnia', fontStyle: 'italic', fontWeight: 600, fontSize: 32, letterSpacing: '-0.01em', marginBottom: 6, color: isLight ? '#D91458' : '#FF2E6E', textShadow: isLight ? 'none' : '0 0 12px rgba(255,46,110,0.5)' }}>
+                The retro system
+              </div>
+              <div style={{ fontFamily: 'Bungee', fontSize: 11, letterSpacing: '0.1em', marginBottom: 18, color: isLight ? '#6E5F75' : '#B8A88A' }}>
+                ━━ DARK: LATE NIGHT · LIGHT: SATURDAY AFTERNOON ━━
+              </div>
+
+              <div style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 14 }}>
+                <b style={{ fontFamily: 'Bungee', fontSize: 11, letterSpacing: '0.08em' }}>DARK MODE</b> is the alley — pink + cyan neon on purple-black, scanlines on hero cards, glow on every number. This is for league night, phone in the thumb-zone, competitive edge.
+              </div>
+              <div style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 18 }}>
+                <b style={{ fontFamily: 'Bungee', fontSize: 11, letterSpacing: '0.08em' }}>LIGHT MODE</b> is the vintage poster — cream ground, deep magenta ink, cyan as a secondary mark. Scanlines and glows drop out (they're noise in daylight); type and scoresheet shapes carry the retro identity instead.
+              </div>
+
+              <div style={{ padding: 14, background: isLight ? 'rgba(217,20,88,0.08)' : 'rgba(255,46,110,0.08)', border: `1px solid ${isLight ? '#D9145844' : '#FF2E6E55'}`, borderRadius: 6, fontSize: 12, lineHeight: 1.55 }}>
+                <b>Type lockups carry identity across modes:</b>
+                <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+                  <li><b>Kalnia italic</b> — screen names, ball names, event names ("Pulse", "Phaze II", "Thursday Doubles")</li>
+                  <li><b>Bungee caps</b> — section labels, marquee rails, chips, buttons ("━ LIVE ━", "STRIKE ✗")</li>
+                  <li><b>Bungee tabular</b> — all numbers, always. That's what makes scores feel like scoresheets.</li>
+                  <li><b>JetBrains Mono</b> — metadata, timestamps, specs — small, quiet</li>
+                </ul>
+              </div>
+
+              <div style={{ marginTop: 14, fontSize: 11, color: isLight ? '#6E5F75' : '#6E5F75', fontStyle: 'italic', lineHeight: 1.55 }}>
+                Toggle dark/light in Tweaks (bottom right). Every screen honors both modes with zero layout change.
+              </div>
+            </div>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Theme">
+          <TweakRadio
+            label="Mode"
+            value={t.mode}
+            onChange={v => setTweak('mode', v)}
+            options={[
+              { value: 'dark', label: 'Dark · neon alley' },
+              { value: 'light', label: 'Light · retro poster' },
+            ]}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</head>
+<body>
+<div id="root"></div>
+</body>
+</html>
