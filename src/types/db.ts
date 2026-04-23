@@ -283,40 +283,46 @@ export type Database = {
       }
       games: {
         Row: {
-          clean_game: boolean | null
-          created_at: string
-          final_score: number | null
-          game_number: number
-          id: string
-          open_count: number | null
-          session_id: string
-          spare_count: number | null
-          strike_count: number | null
-          updated_at: string
+          clean_game:     boolean | null
+          created_at:     string
+          final_score:    number | null
+          game_number:    number
+          id:             string
+          match_result:   string | null
+          open_count:     number | null
+          opponent_score: number | null
+          session_id:     string
+          spare_count:    number | null
+          strike_count:   number | null
+          updated_at:     string
         }
         Insert: {
-          clean_game?: boolean | null
-          created_at?: string
-          final_score?: number | null
-          game_number: number
-          id?: string
-          open_count?: number | null
-          session_id: string
-          spare_count?: number | null
-          strike_count?: number | null
-          updated_at?: string
+          clean_game?:     boolean | null
+          created_at?:     string
+          final_score?:    number | null
+          game_number:     number
+          id?:             string
+          match_result?:   string | null
+          open_count?:     number | null
+          opponent_score?: number | null
+          session_id:      string
+          spare_count?:    number | null
+          strike_count?:   number | null
+          updated_at?:     string
         }
         Update: {
-          clean_game?: boolean | null
-          created_at?: string
-          final_score?: number | null
-          game_number?: number
-          id?: string
-          open_count?: number | null
-          session_id?: string
-          spare_count?: number | null
-          strike_count?: number | null
-          updated_at?: string
+          clean_game?:     boolean | null
+          created_at?:     string
+          final_score?:    number | null
+          game_number?:    number
+          id?:             string
+          match_result?:   string | null
+          open_count?:     number | null
+          opponent_score?: number | null
+          session_id?:     string
+          spare_count?:    number | null
+          strike_count?:   number | null
+          updated_at?:     string
         }
         Relationships: [
           {
@@ -330,79 +336,171 @@ export type Database = {
       }
       patterns: {
         Row: {
-          category: string | null
-          created_at: string
-          id: string
-          length_ft: number | null
-          name: string
-          notes: string | null
-          ratio: number | null
-          source: string | null
-          volume_ml: number | null
+          ai_verified: boolean
+          category:    string | null
+          created_at:  string
+          id:          string
+          length_ft:   number | null
+          name:        string
+          notes:       string | null
+          ratio:       number | null
+          source:      string | null
+          updated_at:  string
+          volume_ml:   number | null
         }
         Insert: {
-          category?: string | null
-          created_at?: string
-          id?: string
-          length_ft?: number | null
-          name: string
-          notes?: string | null
-          ratio?: number | null
-          source?: string | null
-          volume_ml?: number | null
+          ai_verified?: boolean
+          category?:    string | null
+          created_at?:  string
+          id?:          string
+          length_ft?:   number | null
+          name:         string
+          notes?:       string | null
+          ratio?:       number | null
+          source?:      string | null
+          updated_at?:  string
+          volume_ml?:   number | null
         }
         Update: {
-          category?: string | null
-          created_at?: string
-          id?: string
-          length_ft?: number | null
-          name?: string
-          notes?: string | null
-          ratio?: number | null
-          source?: string | null
-          volume_ml?: number | null
+          ai_verified?: boolean
+          category?:    string | null
+          created_at?:  string
+          id?:          string
+          length_ft?:   number | null
+          name?:        string
+          notes?:       string | null
+          ratio?:       number | null
+          source?:      string | null
+          updated_at?:  string
+          volume_ml?:   number | null
         }
         Relationships: []
       }
-      sessions: {
+      tournaments: {
         Row: {
-          bowler_id: string
-          center_name: string
-          created_at: string
-          event_type: string
-          id: string
-          lane_pair: string | null
-          pattern_id: string | null
-          pattern_snapshot: Json | null
-          session_date: string
-          session_notes: string | null
-          updated_at: string
+          bowler_id:           string
+          created_at:          string
+          end_date:            string | null
+          entering_average:    number | null
+          format_description:  string | null
+          format_snapshot:     Json | null
+          handicap_base:       number | null
+          handicap_percentage: number | null
+          id:                  string
+          is_handicap:         boolean
+          location:            string | null
+          name:                string
+          organization:        string | null
+          start_date:          string | null
+          updated_at:          string
         }
         Insert: {
-          bowler_id: string
-          center_name: string
-          created_at?: string
-          event_type: string
-          id?: string
-          lane_pair?: string | null
-          pattern_id?: string | null
-          pattern_snapshot?: Json | null
-          session_date?: string
-          session_notes?: string | null
-          updated_at?: string
+          bowler_id:            string
+          created_at?:          string
+          end_date?:            string | null
+          entering_average?:    number | null
+          format_description?:  string | null
+          format_snapshot?:     Json | null
+          handicap_base?:       number | null
+          handicap_percentage?: number | null
+          id?:                  string
+          is_handicap?:         boolean
+          location?:            string | null
+          name:                 string
+          organization?:        string | null
+          start_date?:          string | null
+          updated_at?:          string
         }
         Update: {
-          bowler_id?: string
-          center_name?: string
-          created_at?: string
-          event_type?: string
-          id?: string
-          lane_pair?: string | null
-          pattern_id?: string | null
+          bowler_id?:           string
+          created_at?:          string
+          end_date?:            string | null
+          entering_average?:    number | null
+          format_description?:  string | null
+          format_snapshot?:     Json | null
+          handicap_base?:       number | null
+          handicap_percentage?: number | null
+          id?:                  string
+          is_handicap?:         boolean
+          location?:            string | null
+          name?:                string
+          organization?:        string | null
+          start_date?:          string | null
+          updated_at?:          string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournaments_bowler_id_fkey"
+            columns: ["bowler_id"]
+            isOneToOne: false
+            referencedRelation: "bowlers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          bowler_id:        string
+          center_name:      string
+          created_at:       string
+          entering_average: number | null
+          event_name:       string | null
+          event_type:       string
+          handicap:         number | null
+          id:               string
+          is_handicap:      boolean
+          lane_pair:        string | null
+          pattern_id:       string | null
+          pattern_snapshot: Json | null
+          planned_games:    number | null
+          round_number:     number | null
+          round_type:       string | null
+          session_date:     string
+          session_notes:    string | null
+          tournament_id:    string | null
+          updated_at:       string
+        }
+        Insert: {
+          bowler_id:         string
+          center_name:       string
+          created_at?:       string
+          entering_average?: number | null
+          event_name?:       string | null
+          event_type:        string
+          handicap?:         number | null
+          id?:               string
+          is_handicap?:      boolean
+          lane_pair?:        string | null
+          pattern_id?:       string | null
           pattern_snapshot?: Json | null
-          session_date?: string
-          session_notes?: string | null
-          updated_at?: string
+          planned_games?:    number | null
+          round_number?:     number | null
+          round_type?:       string | null
+          session_date?:     string
+          session_notes?:    string | null
+          tournament_id?:    string | null
+          updated_at?:       string
+        }
+        Update: {
+          bowler_id?:        string
+          center_name?:      string
+          created_at?:       string
+          entering_average?: number | null
+          event_name?:       string | null
+          event_type?:       string
+          handicap?:         number | null
+          id?:               string
+          is_handicap?:      boolean
+          lane_pair?:        string | null
+          pattern_id?:       string | null
+          pattern_snapshot?: Json | null
+          planned_games?:    number | null
+          round_number?:     number | null
+          round_type?:       string | null
+          session_date?:     string
+          session_notes?:    string | null
+          tournament_id?:    string | null
+          updated_at?:       string
         }
         Relationships: [
           {
@@ -410,6 +508,13 @@ export type Database = {
             columns: ["bowler_id"]
             isOneToOne: false
             referencedRelation: "bowlers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
             referencedColumns: ["id"]
           },
           {
