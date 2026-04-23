@@ -2,10 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === RollIQ Design Tokens === */
+:root {
+  --paper: #faf8f3;
+  --paper-2: #f3efe4;
+  --ink: #1f1b16;
+  --ink-2: #4a4036;
+  --ink-3: #8a7f72;
+  --rule: #d9d2c2;
+  --rule-2: #b8af9c;
+  --amber: oklch(0.72 0.12 70);
+  --amber-soft: oklch(0.92 0.05 70);
+  --cyan: oklch(0.72 0.12 220);
+  --cyan-soft: oklch(0.92 0.05 220);
+  --red: oklch(0.62 0.14 25);
+}
+
 @layer utilities {
-  .tap-target {
-    @apply min-h-[44px] min-w-[44px];
-  }
+  .tap-target { @apply min-h-[44px] min-w-[44px]; }
 }
 
 html, body, #app {
@@ -16,4 +30,161 @@ html, body, #app {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+/* ── Typography ── */
+.rq-hand  { font-family: 'Caveat', cursive; }
+.rq-label { font-family: 'Architects Daughter', cursive; letter-spacing: .2px; }
+.rq-mono  { font-family: 'IBM Plex Mono', monospace; }
+
+/* ── Cards ── */
+.rq-card {
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--paper);
+}
+.rq-card-soft {
+  border: 1.5px solid var(--ink-2);
+  border-radius: 6px;
+  background: var(--paper);
+}
+.rq-card-dash {
+  border: 1.5px dashed var(--ink-2);
+  border-radius: 6px;
+}
+
+/* ── Chips ── */
+.rq-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink-2);
+  font-family: 'Architects Daughter', cursive;
+  font-size: 12px;
+  background: var(--paper);
+  white-space: nowrap;
+  color: var(--ink-2);
+  line-height: 1.5;
+  cursor: default;
+}
+.rq-chip-cyan {
+  background: var(--cyan-soft);
+  border-color: var(--cyan);
+  color: var(--ink);
+}
+.rq-chip-sm {
+  font-size: 10px;
+  padding: 1px 7px;
+}
+
+/* ── Buttons ── */
+.rq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  font-family: 'Architects Daughter', cursive;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: opacity 0.1s;
+  min-height: 44px;
+}
+.rq-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.rq-btn-cyan { background: var(--cyan); color: var(--paper); }
+.rq-btn-full { width: 100%; }
+
+/* ── Segmented control ── */
+.rq-seg {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+}
+.rq-seg-item {
+  flex: 1;
+  padding: 7px 4px;
+  text-align: center;
+  border-radius: 5px;
+  font-family: 'Architects Daughter', cursive;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.12s;
+  user-select: none;
+}
+.rq-seg-item.active {
+  background: var(--cyan);
+  color: var(--paper);
+  font-weight: 700;
+}
+
+/* ── Toggle switch ── */
+.rq-toggle {
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.rq-toggle-knob {
+  position: absolute;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.rq-toggle.on { background: var(--cyan); }
+.rq-toggle.off { background: var(--paper-2); }
+.rq-toggle.on  .rq-toggle-knob { right: 2px; left: auto; background: var(--paper); border: 1.5px solid var(--ink); }
+.rq-toggle.off .rq-toggle-knob { left: 2px; right: auto; background: var(--ink-3); }
+
+/* ── Avatar placeholder ── */
+.rq-avatar {
+  background-image: repeating-linear-gradient(135deg, transparent 0 8px, rgba(30,20,10,.06) 8px 9px);
+  border: 1.5px dashed var(--rule-2);
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+/* ── Field row ── */
+.rq-field {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rq-field:last-child { border-bottom: none; }
+
+/* ── Screen header (shared chrome) ── */
+.rq-header {
+  padding: 8px 16px 10px;
+  border-bottom: 1.5px solid var(--ink);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+
+/* ── Scrollable content area ── */
+.rq-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }

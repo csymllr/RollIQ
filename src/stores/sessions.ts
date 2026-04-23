@@ -13,6 +13,17 @@ export interface Session {
   pattern_snapshot: unknown
   session_date: string
   session_notes: string | null
+  // migration 0014 fields
+  event_name: string | null
+  planned_games: number | null
+  entering_average: number | null
+  handicap: number | null
+  is_handicap: boolean
+  tournament_id: string | null
+  round_type: string | null
+  round_number: number | null
+  // inline games for list view
+  games?: Array<{ final_score: number | null }>
   created_at: string
   updated_at: string
 }
@@ -26,6 +37,8 @@ export interface Game {
   strike_count: number
   spare_count: number
   open_count: number
+  opponent_score: number | null
+  match_result: 'win' | 'loss' | 'push' | null
   created_at: string
   updated_at: string
 }
@@ -54,7 +67,10 @@ export const useSessionsStore = defineStore('sessions', () => {
 
   async function fetchAll() {
     loading.value = true
-    const { data, error } = await supabase.from('sessions').select('*').order('session_date', { ascending: false })
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*, games(final_score)')
+      .order('session_date', { ascending: false })
     loading.value = false
     if (error) return { data: null, error }
     sessions.value = (data as Session[]) ?? []
@@ -75,7 +91,7 @@ export const useSessionsStore = defineStore('sessions', () => {
     return { data: { session: session as Session, games: games as Game[], frames: frames as Frame[] }, error: null }
   }
 
-  async function createSession(values: Omit<Session, 'id' | 'bowler_id' | 'created_at' | 'updated_at'>) {
+  async function createSession(values: Omit<Session, 'id' | 'bowler_id' | 'created_at' | 'updated_at' | 'games'>) {
     const bowler = useBowlerStore()
     if (!bowler.profile) return { data: null, error: new Error('No bowler profile') }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

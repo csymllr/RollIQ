@@ -15,6 +15,7 @@ export interface Ball {
   layout_text: string | null
   role_tag: 'benchmark' | 'strong_asym' | 'transition' | 'urethane' | 'spare' | 'other' | null
   status_active: boolean
+  in_bag: boolean
   notes: string | null
   created_at: string
   updated_at: string
@@ -54,11 +55,21 @@ export const useArsenalStore = defineStore('arsenal', () => {
     return { data, error }
   }
 
+  async function toggleInBag(id: string) {
+    const ball = balls.value.find((b) => b.id === id)
+    if (!ball) return
+    // Optimistic update
+    ball.in_bag = !ball.in_bag
+    const { error } = await supabase.from('balls').update({ in_bag: ball.in_bag }).eq('id', id)
+    if (error) ball.in_bag = !ball.in_bag // revert on error
+  }
+
   async function softDeactivate(id: string) {
     return update(id, { status_active: false })
   }
 
   const activeBalls = () => balls.value.filter((b) => b.status_active)
+  const inBagBalls = () => balls.value.filter((b) => b.status_active && b.in_bag)
 
-  return { balls, loading, fetchAll, create, update, softDeactivate, activeBalls }
+  return { balls, loading, fetchAll, create, update, toggleInBag, softDeactivate, activeBalls, inBagBalls }
 })
