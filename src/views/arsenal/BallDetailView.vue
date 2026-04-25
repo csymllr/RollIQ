@@ -2,17 +2,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useArsenalStore } from '@/stores/arsenal'
-import { useSessionsStore } from '@/stores/sessions'
+import { supabase } from '@/lib/supabase'
 
 const route = useRoute()
 const router = useRouter()
 const arsenal = useArsenalStore()
-const sessions = useSessionsStore()
 
 const ballId = route.params.id as string
 const loading = ref(true)
 const retiring = ref(false)
 const benching = ref(false)
+const deleting = ref(false)
+const confirmDelete = ref(false)
 
 const ball = computed(() => arsenal.balls.find((b) => b.id === ballId) ?? null)
 
@@ -65,6 +66,50 @@ const sparkPath = computed(() => {
   return 'M' + pts.join(' L')
 })
 
+const perfCategoryLabel: Record<string, string> = {
+  strong_asym:   'Strong Asym',
+  strong_solid:  'Strong Solid',
+  strong_pearl:  'Strong Pearl',
+  strong_hybrid: 'Strong Hybrid',
+  mid_solid:     'Mid Solid',
+  mid_pearl:     'Mid Pearl',
+  mid_hybrid:    'Mid Hybrid',
+  entry:         'Entry',
+  urethane:      'Urethane',
+  spare:         'Spare / Plastic',
+}
+
+const specRows = computed(() => {
+  const b = ball.value
+  if (!b) return []
+  return [
+    ['EQUIP TYPE', b.perf_category ? (perfCategoryLabel[b.perf_category] ?? b.perf_category) : '—'],
+    ['COVER TYPE', b.cover_type || '—'],
+    ['COVER STOCK', b.cover_name || '—'],
+    ['CORE',       b.core_type  || '—'],
+    ['LAYOUT',     b.layout_text || '—'],
+    ['SURFACE',    b.finish_surface || '—'],
+    ['WEIGHT',     b.weight_lb + ' LB'],
+    ['STATUS',     b.status_active ? (b.in_bag ? 'IN BAG' : 'NOT IN BAG') : 'RETIRED'],
+  ] as [string, string][]
+})
+
+const techRows = computed(() => {
+  const b = ball.value
+  if (!b) return []
+  return [
+    ['RG',         b.rg           != null ? String(b.rg)           : '—'],
+    ['DIFF',       b.differential != null ? String(b.differential) : '—'],
+    ['MASS BIAS',  b.mass_bias    != null ? String(b.mass_bias)    : '—'],
+    ['FLARE',      b.flare_potential || '—'],
+  ] as [string, string][]
+})
+
+const hasTechSpecs = computed(() => {
+  const b = ball.value
+  return b && (b.rg != null || b.differential != null || b.mass_bias != null || b.flare_potential)
+})
+
 const color = computed(() => ball.value ? ballColor(ball.value.role_tag) : '#FF2E6E')
 const chipLabel = computed(() => {
   const parts = []
@@ -78,8 +123,20 @@ const now = new Date()
 
 onMounted(async () => {
   if (!arsenal.balls.length) await arsenal.fetchAll()
-  // Gather scores from sessions where this ball appears in frames
-  if (!sessions.sessions.length) await sessions.fetchAll()
+  // Gather scores from games where this ball appeared in frames
+  const { data: frameRows } = await supabase
+    .from('frames')
+    .select('game_id')
+    .eq('ball_id', ballId)
+  const gameIds = [...new Set((frameRows ?? []).map((f: { game_id: string }) => f.game_id))]
+  if (gameIds.length) {
+    const { data: games } = await supabase
+      .from('games')
+      .select('final_score')
+      .in('id', gameIds)
+      .not('final_score', 'is', null)
+    ballGames.value = (games ?? []).map((g: { final_score: number }) => g.final_score)
+  }
   loading.value = false
 })
 
@@ -96,6 +153,13 @@ async function retire() {
   await arsenal.softDeactivate(ballId)
   retiring.value = false
   router.push('/arsenal')
+}
+
+async function doDelete() {
+  deleting.value = true
+  const { error } = await arsenal.deleteBall(ballId)
+  deleting.value = false
+  if (!error) router.push('/arsenal')
 }
 </script>
 
@@ -180,24 +244,24 @@ async function retire() {
       <!-- Specs & Layout table -->
       <div class="rr-marquee rr-text-pink" style="font-size: 10px; margin: 4px 0 8px;">SPECS & LAYOUT</div>
       <div class="rr-card" style="padding: 0; margin-bottom: 14px;">
-        <div v-for="([k, v], idx) in [
-          ['CORE',    ball.core_type || '—'],
-          ['COVER',   ball.cover_type || '—'],
-          ['LAYOUT',  ball.layout_text || '—'],
-          ['SURFACE', ball.finish_surface || '—'],
-          ['WEIGHT',  ball.weight_lb + ' LB'],
-          ['STATUS',  ball.status_active ? (ball.in_bag ? 'IN BAG' : 'NOT IN BAG') : 'RETIRED'],
-        ]"
-          :key="k"
-          class="between"
-          :style="{
-            padding: '12px 14px',
-            borderBottom: idx < 5 ? '1px solid var(--line-soft)' : 'none',
-          }">
+        <div v-for="([k, v], idx) in specRows" :key="k" class="between"
+          :style="{ padding: '12px 14px', borderBottom: idx < specRows.length - 1 ? '1px solid var(--line-soft)' : 'none' }">
           <span class="rr-mono" style="font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em;">{{ k }}</span>
           <span class="rr-script" style="font-size: 13px; color: var(--text-0);">{{ v }}</span>
         </div>
       </div>
+
+      <!-- Core / Tech Specs -->
+      <template v-if="hasTechSpecs">
+        <div class="rr-marquee rr-text-cyan" style="font-size: 10px; margin: 4px 0 8px;">CORE SPECS</div>
+        <div class="rr-card" style="padding: 0; margin-bottom: 14px;">
+          <div v-for="([k, v], idx) in techRows" :key="k" class="between"
+            :style="{ padding: '12px 14px', borderBottom: idx < techRows.length - 1 ? '1px solid var(--line-soft)' : 'none' }">
+            <span class="rr-mono" style="font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em;">{{ k }}</span>
+            <span class="rr-num rr-text-cyan" style="font-size: 14px;">{{ v }}</span>
+          </div>
+        </div>
+      </template>
 
       <!-- Notes (if any) -->
       <div v-if="ball.notes" class="rr-card" style="padding: 14px; margin-bottom: 14px;">
@@ -219,8 +283,28 @@ async function retire() {
           {{ benching ? '…' : '↓ BENCH' }}
         </button>
         <button class="rr-btn rr-btn-ghost" style="padding: 14px; font-size: 10px; color: var(--danger); border-color: var(--danger);" :disabled="retiring" @click="retire">
-          {{ retiring ? '…' : '🗑 RETIRE' }}
+          {{ retiring ? '…' : 'RETIRE' }}
         </button>
+      </div>
+
+      <!-- Delete (only when no games logged — entered in error) -->
+      <div v-if="statsGames === 0" style="margin-top: 8px;">
+        <template v-if="!confirmDelete">
+          <button class="rr-btn rr-btn-ghost" style="width: 100%; padding: 14px; font-size: 10px; color: var(--danger); border-color: var(--danger); opacity: 0.6;" @click="confirmDelete = true">
+            DELETE BALL
+          </button>
+        </template>
+        <template v-else>
+          <div class="rr-card" style="padding: 14px; text-align: center; border-color: var(--danger);">
+            <div class="rr-mono" style="font-size: 10px; color: var(--danger); margin-bottom: 12px; letter-spacing: 0.12em;">DELETE PERMANENTLY?</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button class="rr-btn rr-btn-ghost" @click="confirmDelete = false">CANCEL</button>
+              <button class="rr-btn rr-btn-ghost" style="color: var(--danger); border-color: var(--danger);" :disabled="deleting" @click="doDelete">
+                {{ deleting ? '…' : 'YES, DELETE' }}
+              </button>
+            </div>
+          </div>
+        </template>
       </div>
 
     </div>

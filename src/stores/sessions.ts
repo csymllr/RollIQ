@@ -127,5 +127,11 @@ export const useSessionsStore = defineStore('sessions', () => {
     return { data: data as Game | null, error }
   }
 
-  return { sessions, loading, fetchAll, fetchOne, createSession, createGame, upsertFrame, updateGame }
+  async function deleteSession(id: string) {
+    const { error } = await supabase.from('sessions').delete().eq('id', id)
+    if (!error) sessions.value = sessions.value.filter((s) => s.id !== id)
+    return { error }
+  }
+
+  return { sessions, loading, fetchAll, fetchOne, createSession, createGame, upsertFrame, updateGame, deleteSession }
 })

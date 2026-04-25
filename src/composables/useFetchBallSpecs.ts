@@ -1,21 +1,29 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
+import type { PerfCategory, RoleTag } from '@/stores/arsenal'
 
-interface BallSpecs {
-  cover_type?: string
-  core_type?: string
-  finish_surface?: string
-  role_tag?: 'benchmark' | 'strong_asym' | 'transition' | 'urethane' | 'spare' | 'other'
+export interface BallSpecs {
   found: boolean
   source?: 'catalog' | 'ai'
+  canonical_brand?: string
+  cover_type?: string
+  cover_name?: string
+  core_type?: string
+  finish_surface?: string
+  role_tag?: RoleTag
+  perf_category?: PerfCategory
+  rg?: number
+  differential?: number
+  mass_bias?: number
+  flare_potential?: string
 }
 
 export function useFetchBallSpecs() {
-  const fetching  = ref(false)
+  const fetching   = ref(false)
   const fetchError = ref('')
 
   async function fetchSpecs(brand: string, model: string): Promise<BallSpecs | null> {
-    fetching.value  = true
+    fetching.value   = true
     fetchError.value = ''
 
     try {
@@ -34,7 +42,7 @@ export function useFetchBallSpecs() {
       }
 
       if (!data?.found) {
-        fetchError.value = 'Ball not found in database — fill in specs manually'
+        fetchError.value = 'Ball not found — fill in specs manually'
         return null
       }
 

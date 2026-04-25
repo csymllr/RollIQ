@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useArsenalStore } from '@/stores/arsenal'
+import type { PerfCategory, RoleTag } from '@/stores/arsenal'
 import { useBowlerStore } from '@/stores/bowler'
 import { ballCatalog } from '@/data/ballCatalog'
 import { useFetchBallSpecs } from '@/composables/useFetchBallSpecs'
@@ -38,10 +39,21 @@ function onModelChange() {
 async function fetchAndPopulate() {
   const specs = await fetchSpecs(form.value.brand.trim(), form.value.model.trim())
   if (!specs) return
-  if (specs.cover_type)     form.value.cover_type     = specs.cover_type
-  if (specs.core_type)      form.value.core_type      = specs.core_type
-  if (specs.finish_surface) form.value.finish_surface = specs.finish_surface
-  if (specs.role_tag)       form.value.role_tag       = specs.role_tag
+  // Correct brand if AI identified a different canonical manufacturer
+  if (specs.canonical_brand && specs.canonical_brand !== form.value.brand) {
+    form.value.brand = specs.canonical_brand
+  }
+  // Always overwrite all spec fields so a corrected brand/model does a full replace
+  form.value.cover_type      = specs.cover_type      ?? ''
+  form.value.cover_name      = specs.cover_name      ?? ''
+  form.value.core_type       = specs.core_type       ?? ''
+  form.value.finish_surface  = specs.finish_surface  ?? ''
+  form.value.perf_category   = specs.perf_category   ?? ''
+  form.value.role_tag        = specs.role_tag        ?? ''
+  form.value.rg              = specs.rg              ?? null
+  form.value.differential    = specs.differential    ?? null
+  form.value.mass_bias       = specs.mass_bias       ?? null
+  form.value.flare_potential = specs.flare_potential ?? ''
 }
 
 type LayoutSystem = 'storm' | 'dual-angle' | 'custom'
@@ -95,31 +107,47 @@ const form = ref({
   model: '',
   weight_lb: 15,
   cover_type: '',
+  cover_name: '',
   core_type: '',
   finish_surface: '',
   layout_text: '',
-  role_tag: '' as 'benchmark' | 'strong_asym' | 'transition' | 'urethane' | 'spare' | 'other' | '',
+  perf_category: '' as PerfCategory | '',
+  role_tag: '' as RoleTag | '',
+  rg: null as number | null,
+  differential: null as number | null,
+  mass_bias: null as number | null,
+  flare_potential: '',
   notes: '',
   status_active: true,
 })
 
+const usedLayouts = computed(() =>
+  [...new Set(arsenal.balls.map((b) => b.layout_text).filter(Boolean))] as string[]
+)
+
 onMounted(async () => {
   await bowler.fetchMine()
+  if (!arsenal.balls.length) await arsenal.fetchAll()
   if (isEdit.value) {
-    if (!arsenal.balls.length) await arsenal.fetchAll()
     const ball = arsenal.balls.find((b) => b.id === editId.value)
     if (ball) {
       form.value = {
-        brand: ball.brand,
-        model: ball.model,
-        weight_lb: ball.weight_lb,
-        cover_type: ball.cover_type ?? '',
-        core_type: ball.core_type ?? '',
+        brand:          ball.brand,
+        model:          ball.model,
+        weight_lb:      ball.weight_lb,
+        cover_type:     ball.cover_type     ?? '',
+        cover_name:     ball.cover_name     ?? '',
+        core_type:      ball.core_type      ?? '',
         finish_surface: ball.finish_surface ?? '',
-        layout_text: ball.layout_text ?? '',
-        role_tag: ball.role_tag ?? '',
-        notes: ball.notes ?? '',
-        status_active: ball.status_active,
+        layout_text:    ball.layout_text    ?? '',
+        perf_category:  ball.perf_category  ?? '',
+        role_tag:       ball.role_tag       ?? '',
+        rg:             ball.rg             ?? null,
+        differential:   ball.differential   ?? null,
+        mass_bias:      ball.mass_bias      ?? null,
+        flare_potential: ball.flare_potential ?? '',
+        notes:          ball.notes          ?? '',
+        status_active:  ball.status_active,
       }
     }
   }
@@ -133,16 +161,22 @@ async function save() {
   error.value = ''
   saving.value = true
   const values = {
-    brand: form.value.brand.trim(),
-    model: form.value.model.trim(),
-    weight_lb: form.value.weight_lb,
-    cover_type: form.value.cover_type || null,
-    core_type: form.value.core_type || null,
-    finish_surface: form.value.finish_surface || null,
-    layout_text: form.value.layout_text || null,
-    role_tag: form.value.role_tag || null,
-    notes: form.value.notes || null,
-    status_active: form.value.status_active,
+    brand:           form.value.brand.trim(),
+    model:           form.value.model.trim(),
+    weight_lb:       form.value.weight_lb,
+    cover_type:      form.value.cover_type      || null,
+    cover_name:      form.value.cover_name      || null,
+    core_type:       form.value.core_type       || null,
+    finish_surface:  form.value.finish_surface  || null,
+    layout_text:     form.value.layout_text     || null,
+    perf_category:   form.value.perf_category   || null,
+    role_tag:        form.value.role_tag        || null,
+    rg:              form.value.rg              ?? null,
+    differential:    form.value.differential    ?? null,
+    mass_bias:       form.value.mass_bias       ?? null,
+    flare_potential: form.value.flare_potential || null,
+    notes:           form.value.notes           || null,
+    status_active:   form.value.status_active,
   }
   const { error: err } = isEdit.value
     ? await arsenal.update(editId.value!, values)
@@ -217,34 +251,50 @@ const now = new Date()
             {{ fetchingSpecs ? '✦ FINDING SPECS…' : '✦ FILL SPECS WITH AI' }}
           </button>
           <span v-if="specsError" class="rr-mono" style="font-size: 10px; color: var(--danger);">{{ specsError }}</span>
-          <span v-if="!specsError && !fetchingSpecs" class="rr-mono" style="font-size: 9px; color: var(--text-3);">auto-fills cover, surface &amp; role</span>
+          <span v-if="!specsError && !fetchingSpecs" class="rr-mono" style="font-size: 9px; color: var(--text-3);">auto-fills cover, core, RG, diff &amp; type</span>
         </div>
 
-        <!-- Weight & Role -->
-        <div class="rr-marquee rr-text-cyan" style="font-size: 10px; margin-bottom: 8px;">WEIGHT & ROLE</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <!-- Weight, Equip Type & Bag Role -->
+        <div class="rr-marquee rr-text-cyan" style="font-size: 10px; margin-bottom: 8px;">WEIGHT & CLASSIFICATION</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
           <div>
             <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Weight (lb)</div>
             <input v-model.number="form.weight_lb" type="number" min="6" max="16" required
               class="retro-input" style="width: 100%; box-sizing: border-box;" />
           </div>
           <div>
-            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Role</div>
-            <select v-model="form.role_tag" class="retro-input" style="width: 100%; box-sizing: border-box;">
-              <option value="">Select role</option>
-              <option value="benchmark">Benchmark</option>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Equip Type</div>
+            <select v-model="form.perf_category" class="retro-input" style="width: 100%; box-sizing: border-box;">
+              <option value="">Select type</option>
               <option value="strong_asym">Strong Asym</option>
-              <option value="transition">Transition</option>
+              <option value="strong_solid">Strong Solid</option>
+              <option value="strong_pearl">Strong Pearl</option>
+              <option value="strong_hybrid">Strong Hybrid</option>
+              <option value="mid_solid">Mid Solid</option>
+              <option value="mid_pearl">Mid Pearl</option>
+              <option value="mid_hybrid">Mid Hybrid</option>
+              <option value="entry">Entry</option>
               <option value="urethane">Urethane</option>
-              <option value="spare">Spare</option>
-              <option value="other">Other</option>
+              <option value="spare">Spare / Plastic</option>
             </select>
           </div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Bag Role <span style="font-size: 9px; opacity: 0.6;">— how you use it</span></div>
+          <select v-model="form.role_tag" class="retro-input" style="width: 100%; box-sizing: border-box;">
+            <option value="">Select role</option>
+            <option value="benchmark">Benchmark</option>
+            <option value="strong_asym">Strong Asym</option>
+            <option value="transition">Transition</option>
+            <option value="urethane">Urethane</option>
+            <option value="spare">Spare</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         <!-- Cover & Surface -->
         <div class="rr-marquee rr-text-pink" style="font-size: 10px; margin-bottom: 8px;">COVER & SURFACE</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
           <div>
             <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Cover Type</div>
             <select v-model="form.cover_type" class="retro-input" style="width: 100%; box-sizing: border-box;">
@@ -258,17 +308,53 @@ const now = new Date()
             </select>
           </div>
           <div>
-            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Surface / Finish</div>
-            <input v-model="form.finish_surface" type="text" placeholder="500 / 2000 / polish"
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Cover Stock Name</div>
+            <input v-model="form.cover_name" type="text" placeholder="R2S Pearl, NRG Hybrid…"
               class="retro-input" style="width: 100%; box-sizing: border-box;" />
+          </div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Surface / Finish</div>
+          <input v-model="form.finish_surface" type="text" placeholder="500 / 2000 / polish"
+            class="retro-input" style="width: 100%; box-sizing: border-box;" />
+        </div>
+
+        <!-- Core Specs -->
+        <div class="rr-marquee rr-text-cyan" style="font-size: 10px; margin-bottom: 8px;">CORE SPECS</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">RG</div>
+            <input v-model.number="form.rg" type="number" step="0.001" min="2" max="3" placeholder="2.47"
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Differential</div>
+            <input v-model.number="form.differential" type="number" step="0.001" min="0" max="0.1" placeholder="0.050"
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Mass Bias</div>
+            <input v-model.number="form.mass_bias" type="number" step="0.001" min="0" max="0.1" placeholder="0.018"
+              class="retro-input" style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <div class="rr-mono" style="font-size: 10px; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.10em;">Flare Potential</div>
+            <select v-model="form.flare_potential" class="retro-input" style="width: 100%; box-sizing: border-box;">
+              <option value="">Select</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="Medium-High">Medium-High</option>
+              <option value="High">High</option>
+              <option value="Very High">Very High</option>
+            </select>
           </div>
         </div>
 
         <!-- Layout -->
         <div class="between" style="margin-bottom: 10px;">
           <div class="rr-marquee rr-text-cyan" style="font-size: 10px;">LAYOUT</div>
-          <!-- System toggle -->
-          <div style="display: flex; border-radius: 4px; overflow: hidden; border: 1px solid var(--line);">
+          <!-- Preset mode: full toggle -->
+          <div v-if="layoutSystem !== 'custom'" style="display: flex; border-radius: 4px; overflow: hidden; border: 1px solid var(--line);">
             <button type="button" @click="layoutSystem = 'storm'"
               :style="{
                 padding: '5px 10px', fontFamily: 'Bungee, sans-serif', fontSize: '9px', cursor: 'pointer', border: 'none',
@@ -286,11 +372,14 @@ const now = new Date()
             <button type="button" @click="layoutSystem = 'custom'"
               :style="{
                 padding: '5px 10px', fontFamily: 'Bungee, sans-serif', fontSize: '9px', cursor: 'pointer', border: 'none',
-                background: layoutSystem === 'custom' ? 'var(--accent)' : 'var(--bg-1)',
-                color: layoutSystem === 'custom' ? '#FFF' : 'var(--text-2)',
-                boxShadow: layoutSystem === 'custom' ? 'var(--neon-glow-pink)' : 'none',
+                background: 'var(--bg-1)', color: 'var(--text-2)',
               }">CUSTOM</button>
           </div>
+          <!-- Custom mode: just a link back to presets -->
+          <button v-else type="button" @click="layoutSystem = 'storm'"
+            class="rr-mono" style="font-size: 9px; color: var(--text-3); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;">
+            USE PRESETS
+          </button>
         </div>
 
         <!-- 1H / 2H toggle (dual angle only) -->
@@ -304,7 +393,7 @@ const now = new Date()
         </div>
 
         <!-- Layout presets -->
-        <div v-if="layoutSystem !== 'custom'" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
           <button v-for="preset in activePresets" :key="preset.value" type="button"
             @click="selectLayout(preset.value)"
             class="rr-card"
@@ -319,9 +408,12 @@ const now = new Date()
           </button>
         </div>
 
-        <input v-model="form.layout_text" type="text"
-          :placeholder="layoutSystem === 'custom' ? 'Enter layout…' : 'or type a custom layout…'"
+        <input v-model="form.layout_text" type="text" list="layout-list"
+          placeholder="Enter layout…"
           class="retro-input" style="width: 100%; box-sizing: border-box; margin-bottom: 16px;" />
+        <datalist id="layout-list">
+          <option v-for="layout in usedLayouts" :key="layout" :value="layout" />
+        </datalist>
 
         <!-- Notes -->
         <div class="rr-marquee rr-text-pink" style="font-size: 10px; margin-bottom: 8px;">NOTES</div>

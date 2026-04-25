@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useBowlerStore } from './bowler'
 
+export type PerfCategory = 'strong_asym' | 'strong_solid' | 'strong_pearl' | 'strong_hybrid' | 'mid_solid' | 'mid_pearl' | 'mid_hybrid' | 'entry' | 'urethane' | 'spare'
+export type RoleTag = 'benchmark' | 'strong_asym' | 'transition' | 'urethane' | 'spare' | 'other'
+
 export interface Ball {
   id: string
   bowler_id: string
@@ -10,10 +13,16 @@ export interface Ball {
   model: string
   weight_lb: number
   cover_type: string | null
+  cover_name: string | null
   core_type: string | null
   finish_surface: string | null
   layout_text: string | null
-  role_tag: 'benchmark' | 'strong_asym' | 'transition' | 'urethane' | 'spare' | 'other' | null
+  perf_category: PerfCategory | null
+  role_tag: RoleTag | null
+  rg: number | null
+  differential: number | null
+  mass_bias: number | null
+  flare_potential: string | null
   status_active: boolean
   in_bag: boolean
   notes: string | null
@@ -68,8 +77,14 @@ export const useArsenalStore = defineStore('arsenal', () => {
     return update(id, { status_active: false })
   }
 
+  async function deleteBall(id: string) {
+    const { error } = await supabase.from('balls').delete().eq('id', id)
+    if (!error) balls.value = balls.value.filter((b) => b.id !== id)
+    return { error }
+  }
+
   const activeBalls = () => balls.value.filter((b) => b.status_active)
   const inBagBalls = () => balls.value.filter((b) => b.status_active && b.in_bag)
 
-  return { balls, loading, fetchAll, create, update, toggleInBag, softDeactivate, activeBalls, inBagBalls }
+  return { balls, loading, fetchAll, create, update, toggleInBag, softDeactivate, deleteBall, activeBalls, inBagBalls }
 })

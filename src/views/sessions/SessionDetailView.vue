@@ -13,6 +13,12 @@ const loading = ref(true)
 const session = ref<Session | null>(null)
 const games = ref<Game[]>([])
 const addingGame = ref(false)
+const deleting = ref(false)
+const confirmDelete = ref(false)
+
+const isInProgress = computed(() =>
+  games.value.length === 0 || games.value.some((g) => g.final_score == null)
+)
 
 onMounted(async () => {
   const { data } = await sessions.fetchOne(sessionId)
@@ -57,6 +63,13 @@ const eventTypeLabel: Record<string, string> = {
   tournament: 'TOURNEY',
 }
 
+async function doDelete() {
+  deleting.value = true
+  const { error } = await sessions.deleteSession(sessionId)
+  deleting.value = false
+  if (!error) router.push('/sessions')
+}
+
 const now = new Date()
 </script>
 
@@ -81,7 +94,9 @@ const now = new Date()
           {{ formatDate(session.session_date) }}
         </div>
       </div>
-      <div style="width: 32px;"/>
+      <button v-if="!loading && isInProgress" @click="confirmDelete = !confirmDelete"
+        style="width: 32px; color: var(--danger); font-size: 16px; background: none; border: none; cursor: pointer; padding: 0 4px; opacity: 0.7;">✕</button>
+      <div v-else style="width: 32px;"/>
     </div>
 
     <!-- Loading -->
@@ -158,6 +173,17 @@ const now = new Date()
         style="width: 100%; padding: 14px; font-size: 11px; margin-bottom: 16px;">
         {{ addingGame ? 'ADDING…' : '＋ ADD GAME' }}
       </button>
+
+      <!-- Delete confirmation -->
+      <div v-if="confirmDelete" class="rr-card" style="padding: 14px; margin-bottom: 16px; border-color: var(--danger); text-align: center;">
+        <div class="rr-mono" style="font-size: 10px; color: var(--danger); margin-bottom: 12px; letter-spacing: 0.12em;">DELETE THIS SESSION?</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button class="rr-btn rr-btn-ghost" @click="confirmDelete = false">CANCEL</button>
+          <button class="rr-btn rr-btn-ghost" style="color: var(--danger); border-color: var(--danger);" :disabled="deleting" @click="doDelete">
+            {{ deleting ? '…' : 'YES, DELETE' }}
+          </button>
+        </div>
+      </div>
 
       <!-- Session notes -->
       <div v-if="session?.session_notes" class="rr-card" style="padding: 16px;">
