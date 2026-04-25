@@ -135,7 +135,7 @@ onMounted(async () => {
       .select('final_score')
       .in('id', gameIds)
       .not('final_score', 'is', null)
-    ballGames.value = (games ?? []).map((g: { final_score: number }) => g.final_score)
+    ballGames.value = (games ?? []).map((g: { final_score: number | null }) => g.final_score as number)
   }
   loading.value = false
 })

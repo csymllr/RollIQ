@@ -20,13 +20,6 @@ const error = ref('')
 
 const brandModels = computed(() => ballCatalog[form.value.brand] ?? [])
 
-const isNotInCatalog = computed(() => {
-  const b = form.value.brand.trim()
-  const m = form.value.model.trim()
-  if (!b || !m) return false
-  const entries = ballCatalog[b] ?? []
-  return !entries.some((e) => e.model.toLowerCase() === m.toLowerCase())
-})
 
 function onModelChange() {
   const entry = brandModels.value.find((b) => b.model === form.value.model)
@@ -177,6 +170,7 @@ async function save() {
     flare_potential: form.value.flare_potential || null,
     notes:           form.value.notes           || null,
     status_active:   form.value.status_active,
+    in_bag:          false,
   }
   const { error: err } = isEdit.value
     ? await arsenal.update(editId.value!, values)

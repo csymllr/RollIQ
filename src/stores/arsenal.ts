@@ -48,7 +48,8 @@ export const useArsenalStore = defineStore('arsenal', () => {
     if (!bowler.profile) return { data: null, error: new Error('No bowler profile') }
     const { data, error } = await supabase
       .from('balls')
-      .insert({ ...values, bowler_id: bowler.profile.id })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .insert({ ...values, bowler_id: bowler.profile.id } as any)
       .select()
       .single()
     if (!error && data) balls.value.push(data as Ball)
@@ -56,7 +57,8 @@ export const useArsenalStore = defineStore('arsenal', () => {
   }
 
   async function update(id: string, values: Partial<Omit<Ball, 'id' | 'bowler_id' | 'created_at' | 'updated_at'>>) {
-    const { data, error } = await supabase.from('balls').update(values).eq('id', id).select().single()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await supabase.from('balls').update(values as any).eq('id', id).select().single()
     if (!error && data) {
       const idx = balls.value.findIndex((b) => b.id === id)
       if (idx !== -1) balls.value[idx] = data as Ball
@@ -69,7 +71,8 @@ export const useArsenalStore = defineStore('arsenal', () => {
     if (!ball) return
     // Optimistic update
     ball.in_bag = !ball.in_bag
-    const { error } = await supabase.from('balls').update({ in_bag: ball.in_bag }).eq('id', id)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from('balls').update({ in_bag: ball.in_bag } as any).eq('id', id)
     if (error) ball.in_bag = !ball.in_bag // revert on error
   }
 

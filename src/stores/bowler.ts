@@ -30,7 +30,7 @@ export const useBowlerStore = defineStore('bowler', () => {
     const { data, error } = await supabase.from('bowlers').select('*').maybeSingle()
     loading.value = false
     if (error) return { data: null, error }
-    profile.value = data
+    profile.value = data as BowlerProfile | null
     return { data, error: null }
   }
 

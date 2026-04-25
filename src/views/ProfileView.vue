@@ -52,7 +52,7 @@ async function save() {
   saving.value = true
   const { error: err } = await bowler.upsertMine({
     display_name: form.value.display_name.trim(),
-    handedness: form.value.handedness || null,
+    handedness: (form.value.handedness || null) as 'right' | 'left' | null,
     style_type: form.value.style_type || null,
     rev_profile: form.value.rev_profile || null,
     speed_profile: form.value.speed_profile || null,

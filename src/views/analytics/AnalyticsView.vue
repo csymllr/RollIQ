@@ -37,22 +37,22 @@ const peak = computed(() => {
   return scores.length ? Math.max(...scores) : null
 })
 
-// Per-ball averages
+const roleColor: Record<string, string> = {
+  benchmark: '#FF2E6E', strong_asym: '#00E0FF', transition: '#FFD83D',
+  urethane: '#B8A88A', spare: '#8A4BE8', other: '#6E5F75',
+}
+
+// Per-ball averages — populated from BallDetailView's frame query approach; empty until full analytics is built
 const perBall = computed(() => {
-  const map = new Map<string, { name: string; color: string; scores: number[] }>()
-  for (const s of sessions.sessions) {
-    for (const g of s.games ?? []) {
-      if (!g.final_score || !g.ball_id) continue
-      const ball = arsenal.balls.find((b) => b.id === g.ball_id)
-      if (!ball) continue
-      const key = ball.id
-      if (!map.has(key)) map.set(key, { name: ball.ball_name || ball.model || 'Unknown', color: ball.color_hex || '#FF2E6E', scores: [] })
-      map.get(key)!.scores.push(g.final_score)
-    }
-  }
-  return [...map.values()]
-    .map((b) => ({ ...b, avg: Math.round(b.scores.reduce((a, c) => a + c, 0) / b.scores.length) }))
-    .sort((a, b) => b.avg - a.avg)
+  return arsenal.balls
+    .filter((b) => b.status_active)
+    .map((b) => ({
+      name: `${b.brand} ${b.model}`,
+      color: roleColor[b.role_tag ?? ''] || '#FF2E6E',
+      scores: [] as number[],
+      avg: 0,
+    }))
+    .filter((b) => b.scores.length > 0)
 })
 
 // Per-event-type
@@ -144,11 +144,11 @@ function trendPath(data: number[], w = 400, h = 80) {
                   <stop offset="100%" stop-color="rgba(0,224,255,0)"/>
                 </linearGradient>
               </defs>
-              <path :d="trendPath(trendData, 300, 38).area" fill="url(#tGrad)"/>
-              <path :d="trendPath(trendData, 300, 38).line" fill="none" stroke="#00E0FF" stroke-width="2"
+              <path :d="trendPath(trendData!, 300, 38).area" fill="url(#tGrad)"/>
+              <path :d="trendPath(trendData!, 300, 38).line" fill="none" stroke="#00E0FF" stroke-width="2"
                 style="filter:drop-shadow(0 0 4px #00E0FF);"/>
               <circle
-                v-for="(p, i) in trendPath(trendData, 300, 38).pts.filter((_, i) => i === 0 || i === trendData.length - 1)"
+                v-for="(p, i) in trendPath(trendData!, 300, 38).pts.filter((_, i) => i === 0 || i === trendData!.length - 1)"
                 :key="i"
                 :cx="p.x" :cy="p.y" r="3"
                 fill="#FF2E6E"

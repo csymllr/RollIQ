@@ -113,19 +113,6 @@ const openCount = computed(() => {
   }
   return opens
 })
-const tenPinCount = computed(() => {
-  let count = 0
-  for (let i = 0; i < 10; i++) {
-    const f = frames.value[i]
-    if (f.roll1 !== null && f.roll1 !== 10 && f.roll2 !== null) {
-      const remaining = 10 - f.roll1
-      // left with 1 pin that's 10-pin-like — simplified: any single pin leave
-      if (f.roll1 === 9) count++
-    }
-  }
-  return count
-})
-
 // Projected score if close all remaining frames
 const projectedScore = computed(() => {
   const cur = currentScore() ?? 0
