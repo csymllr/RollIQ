@@ -421,7 +421,7 @@ const now = new Date()
     </div>
 
     <!-- Sticky bottom CTA -->
-    <div style="position: sticky; bottom: 0; background: #14091E; border-top: 1px solid var(--accent-line); padding: 12px 16px 28px; flex-shrink: 0;">
+    <div style="position: sticky; bottom: 0; background: #14091E; border-top: 1px solid var(--accent-line); padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0;">
       <button type="button" @click="save" :disabled="saving"
         class="rr-btn rr-btn-primary" style="width: 100%; padding: 16px; font-size: 13px;">
         {{ saving ? 'SAVING…' : (isEdit ? 'SAVE CHANGES' : 'ADD BALL →') }}
