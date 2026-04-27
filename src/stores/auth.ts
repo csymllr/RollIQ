@@ -30,11 +30,19 @@ export const useAuthStore = defineStore('auth', () => {
     return { data, error }
   }
 
+  async function signInWithOAuth(provider: 'google' | 'facebook') {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin + '/dashboard' },
+    })
+    return { error }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
   }
 
   const isAuthenticated = () => !!session.value
 
-  return { session, user, loading, init, signUp, signInWithPassword, signOut, isAuthenticated }
+  return { session, user, loading, init, signUp, signInWithPassword, signInWithOAuth, signOut, isAuthenticated }
 })
